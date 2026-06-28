@@ -1,0 +1,2433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SolarKal Intelligence Platform</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+--y:#FBD707;--y2:#d4b600;--y-bg:rgba(251,215,7,0.08);--y-border:rgba(251,215,7,0.2);
+--n:#253846;--n2:#2f4a5f;--n3:#1a2830;--n4:#131e26;--n5:#0e1a21;
+--t:#e8edf2;--t2:#8fa5b5;--t3:#506070;--t4:#3a4e5e;
+--b:rgba(255,255,255,0.06);--b2:rgba(255,255,255,0.10);
+--g:#22c98a;--g-bg:rgba(34,201,138,0.1);
+--r:#f05c5c;--r-bg:rgba(240,92,92,0.1);
+--w:#f5a623;--w-bg:rgba(245,166,35,0.1);
+--bl:#6ab4f5;--bl-bg:rgba(106,180,245,0.1);
+--p:#b48af5;--p-bg:rgba(180,138,245,0.1);
+--font:'Plus Jakarta Sans',sans-serif;
+--card:rgba(255,255,255,0.035);--card-h:rgba(255,255,255,0.06);
+}
+body{font-family:var(--font);background:var(--n5);color:var(--t);min-height:100vh;display:flex;overflow-x:hidden}
+.sidebar{width:210px;min-width:210px;background:var(--n3);border-right:1px solid var(--b);display:flex;flex-direction:column;position:sticky;top:0;height:100vh;overflow-y:auto}
+.s-logo{padding:22px 18px 18px;border-bottom:1px solid var(--b)}
+.s-logo-row{display:flex;align-items:center;gap:9px}
+.s-icon{width:26px;height:26px;position:relative;flex-shrink:0}
+.s-icon .o{position:absolute;inset:0;background:var(--y);border-radius:50%}
+.s-icon .i{position:absolute;top:5px;left:5px;width:16px;height:16px;background:var(--n3);border-radius:2px}
+.s-brand{font-size:14px;font-weight:700;letter-spacing:-.3px}
+.s-sub{font-size:8px;font-weight:600;letter-spacing:1.2px;text-transform:uppercase;color:var(--t3);margin-top:1px}
+.s-label{padding:18px 18px 6px;font-size:8px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--t4)}
+.s-item{display:flex;align-items:center;gap:9px;padding:8px 18px;font-size:12px;font-weight:500;color:var(--t2);cursor:pointer;border-left:2px solid transparent;transition:all .15s}
+.s-item:hover{color:var(--t);background:var(--card)}
+.s-item.active{color:var(--y);border-left-color:var(--y);background:var(--y-bg)}
+.s-dot{width:5px;height:5px;border-radius:50%;flex-shrink:0}
+.s-footer{margin-top:auto;padding:14px 18px;border-top:1px solid var(--b);font-size:10px;color:var(--t4)}
+.s-avatar{width:24px;height:24px;border-radius:50%;background:var(--y);color:var(--n);display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:800;flex-shrink:0}
+.main{flex:1;display:flex;flex-direction:column;min-width:0}
+.topbar{padding:16px 28px;border-bottom:1px solid var(--b);display:flex;align-items:center;justify-content:space-between;background:var(--n3)}
+.page-title{font-size:16px;font-weight:700;letter-spacing:-.3px}
+.page-title span{color:var(--y)}
+.top-right{display:flex;align-items:center;gap:14px}
+.badge-live{display:flex;align-items:center;gap:5px;font-size:10px;font-weight:600;color:var(--g);background:var(--g-bg);border:1px solid rgba(34,201,138,.2);border-radius:16px;padding:3px 9px}
+.badge-live::before{content:'';width:5px;height:5px;border-radius:50%;background:var(--g);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.ts{font-size:11px;color:var(--t4)}
+.content{flex:1;padding:24px 28px;overflow-y:auto}
+.kpi-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:20px}
+.kpi{background:var(--card);border:1px solid var(--b);border-radius:9px;padding:14px 16px;cursor:pointer;transition:all .2s}
+.kpi:hover{background:var(--card-h);border-color:var(--y-border)}
+.kpi-label{font-size:9px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--t4);margin-bottom:6px}
+.kpi-val{font-size:22px;font-weight:800;letter-spacing:-1px;line-height:1;margin-bottom:4px}
+.kpi-sub{font-size:11px;color:var(--t2);display:flex;align-items:center;gap:4px}
+.up{color:var(--g);font-weight:600}
+.dn{color:var(--r);font-weight:600}
+.sec{font-size:8px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--t4);margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.sec::after{content:'';flex:1;height:1px;background:var(--b)}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+.grid-3{display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:14px;margin-bottom:14px}
+.grid-2-1{display:grid;grid-template-columns:1.6fr 1fr;gap:14px;margin-bottom:14px}
+.mod{background:var(--card);border:1px solid var(--b);border-radius:10px;padding:18px;transition:border-color .2s}
+.mod:hover{border-color:var(--y-border)}
+.mod-h{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.mod-t{font-size:10px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--y)}
+.mod-badge{font-size:9px;font-weight:600;padding:2px 7px;border-radius:16px;background:var(--y-bg);color:var(--y);border:1px solid var(--y-border)}
+.mod-badge.g{background:var(--g-bg);color:var(--g);border-color:rgba(34,201,138,.2)}
+.mod-badge.r{background:var(--r-bg);color:var(--r);border-color:rgba(240,92,92,.2)}
+.mod-badge.bl{background:var(--bl-bg);color:var(--bl);border-color:rgba(106,180,245,.2)}
+.chart-w{position:relative;width:100%}
+.client-row{display:grid;grid-template-columns:1fr auto auto auto;align-items:center;gap:10px;padding:8px 10px;background:var(--n);border-radius:7px;border:1px solid var(--b);font-size:11px;cursor:pointer;transition:background .15s;margin-bottom:5px}
+.client-row:hover{background:var(--n2)}
+.c-name{font-weight:600;color:var(--t);font-size:11px}
+.c-meta{color:var(--t2);font-size:10px;margin-top:1px}
+.c-rev{font-size:13px;font-weight:700;color:var(--y);text-align:right}
+.c-rev-sub{font-size:9px;color:var(--t3);text-align:right}
+.stage-bar{display:flex;height:28px;border-radius:4px;overflow:hidden;gap:2px}
+.stage-bar div{border-radius:3px;min-width:6px}
+.stage-psa{background:var(--t4)}
+.stage-rfp{background:var(--bl)}
+.stage-awd{background:var(--w)}
+.stage-vcs{background:var(--p)}
+.stage-ols{background:var(--y)}
+.stage-pap{background:var(--g)}
+.stage-ntp{background:#fff}
+.stage-pto{background:var(--g)}
+.mw-tag{font-size:10px;color:var(--t2);white-space:nowrap;text-align:right}
+.funnel{display:flex;flex-direction:column;gap:5px}
+.f-row{display:flex;align-items:center;gap:8px}
+.f-label{font-size:10px;color:var(--t2);width:65px;flex-shrink:0;text-align:right}
+.f-bar-w{flex:1;height:20px;background:var(--n);border-radius:3px;overflow:visible;border:1px solid var(--b);position:relative}
+.f-bar{height:100%;border-radius:2px;display:flex;align-items:center;padding-left:6px;font-size:9px;font-weight:700;white-space:nowrap;overflow:visible;position:relative}
+.f-count{font-size:10px;color:var(--t4);width:25px;text-align:right;flex-shrink:0}
+.cohort-grid{display:grid;grid-template-columns:auto repeat(7,1fr);gap:2px;font-size:10px}
+.cohort-cell{padding:6px 8px;border-radius:4px;text-align:center}
+.cohort-header{font-weight:700;color:var(--t2);background:var(--n);padding:6px 4px;border-radius:4px;font-size:9px}
+.cohort-label{font-weight:600;color:var(--t);background:var(--n);text-align:left;padding:6px 8px;border-radius:4px}
+.conv-rate{font-weight:700}
+.conv-good{color:var(--g);background:rgba(34,201,138,.08)}
+.conv-ok{color:var(--y);background:var(--y-bg)}
+.conv-bad{color:var(--r);background:var(--r-bg)}
+.conv-na{color:var(--t4);background:var(--n)}
+.detail-row{display:flex;justify-content:space-between;font-size:10px;padding:4px 0;border-bottom:1px solid var(--b);color:var(--t2)}
+.detail-row:last-child{border-bottom:none}
+.detail-row strong{color:var(--t);font-weight:600}
+.placeholder-box{height:120px;background:var(--n);border-radius:7px;border:1px dashed rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;color:var(--t4);font-size:11px;font-style:italic}
+.legend{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:8px;font-size:10px;color:var(--t2)}
+.legend-item{display:flex;align-items:center;gap:4px}
+.legend-dot{width:8px;height:8px;border-radius:2px;flex-shrink:0}
+.tab-row{display:flex;gap:2px;margin-bottom:14px}
+.tab{padding:6px 14px;font-size:10px;font-weight:600;border-radius:6px;cursor:pointer;color:var(--t3);background:transparent;border:1px solid transparent;transition:all .15s}
+.tab:hover{color:var(--t2)}
+.tab.active{color:var(--y);background:var(--y-bg);border-color:var(--y-border)}
+.page{display:none}
+.page.active{display:block}
+.proj-type-btn{flex:1;padding:7px;text-align:center;font-size:11px;font-weight:600;border-radius:5px;cursor:pointer;background:var(--n);border:1px solid var(--b);color:var(--t2);transition:all .15s}
+.proj-type-btn:hover{border-color:var(--y-border);color:var(--t)}
+.proj-type-btn.active{background:var(--y-bg);border-color:var(--y-border);color:var(--y)}
+.expand-row{cursor:pointer;transition:background .15s}
+.expand-row:hover{background:var(--n2) !important}
+.expand-icon{transition:transform .2s;display:inline-block;font-size:10px;color:var(--t3);width:16px}
+.expand-icon.open{transform:rotate(90deg)}
+.rfp-group{margin:0 0 2px 24px;display:none}
+.rfp-group.open{display:block}
+.rfp-row{display:grid;align-items:center;gap:8px;padding:6px 10px;background:rgba(251,215,7,.03);border-radius:5px;border:1px solid rgba(251,215,7,.06);font-size:10px;cursor:pointer;margin-bottom:2px;transition:background .15s}
+.rfp-row:hover{background:rgba(251,215,7,.07)}
+.bldg-group{margin:0 0 2px 20px;display:none}
+.bldg-group.open{display:block}
+.bldg-row{display:grid;grid-template-columns:1fr auto auto;align-items:center;gap:8px;padding:6px 10px;background:var(--n5);border-radius:4px;border:1px solid var(--b);font-size:10px;margin-bottom:2px;min-height:36px}
+.dev-card{background:var(--n);border:1px solid var(--b);border-radius:9px;padding:16px;margin-bottom:10px;transition:border-color .2s}
+.dev-card:hover{border-color:var(--y-border)}
+.rating-bar-wrap{flex:1;height:7px;background:var(--n5);border-radius:4px;overflow:hidden}
+.rating-bar{height:100%;border-radius:4px}
+.pricing-tbl{width:100%;border-collapse:separate;border-spacing:0 2px;font-size:11px}
+.pricing-tbl th{text-align:left;font-size:9px;font-weight:700;color:var(--t4);text-transform:uppercase;letter-spacing:.5px;padding:6px 10px;border-bottom:1px solid var(--b)}
+.pricing-tbl td{padding:7px 10px;background:var(--n);border:none}
+.pricing-tbl tr td:first-child{border-radius:5px 0 0 5px;font-weight:600;color:var(--t)}
+.pricing-tbl tr td:last-child{border-radius:0 5px 5px 0}
+.pricing-tbl .num{text-align:right;font-variant-numeric:tabular-nums;color:var(--t2)}
+.pricing-tbl .highlight{color:var(--y);font-weight:700}
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--b);border-radius:3px}
+.chat-sidebar{width:0;min-width:0;background:var(--n3);border-left:1px solid var(--b);display:flex;flex-direction:column;height:100vh;position:sticky;top:0;overflow:hidden;transition:width .25s ease,min-width .25s ease}
+.chat-sidebar.open{width:340px;min-width:340px}
+.chat-toggle-btn{display:flex;align-items:center;gap:8px;padding:7px 16px;border-radius:10px;border:1px solid var(--y-border);background:var(--y-bg);color:var(--y);font-family:var(--font);font-size:12px;font-weight:700;cursor:pointer;transition:all .2s;white-space:nowrap;letter-spacing:.2px}
+.chat-toggle-btn:hover{background:var(--y);color:var(--n);box-shadow:0 0 16px rgba(251,215,7,0.25)}
+.chat-toggle-btn img{width:20px;height:20px;object-fit:contain}
+.chat-header{padding:12px 14px;border-bottom:1px solid var(--b);display:flex;align-items:center;justify-content:space-between}
+.chat-header-title{font-size:13px;font-weight:700;color:var(--t)}
+.chat-header-title span{color:var(--y)}
+.chat-close{background:none;border:none;color:var(--t3);font-size:16px;cursor:pointer;padding:4px}
+.chat-close:hover{color:var(--t)}
+.chat-messages{flex:1;overflow-y:auto;padding:14px 16px;display:flex;flex-direction:column;gap:10px}
+.chat-msg{max-width:88%;font-size:12px;line-height:1.5;padding:10px 12px;border-radius:10px;word-wrap:break-word}
+.chat-msg.user{align-self:flex-end;background:var(--y);color:var(--n);border-bottom-right-radius:3px}
+.chat-msg.assistant{align-self:flex-start;background:var(--card);color:var(--t);border:1px solid var(--b);border-bottom-left-radius:3px}
+.chat-msg.system{align-self:center;background:none;color:var(--t4);font-size:10px;font-style:italic;padding:4px}
+.chat-msg.assistant .thinking{color:var(--t3);font-style:italic}
+.chat-input-row{padding:10px 12px;border-top:1px solid var(--b);display:flex;gap:8px;align-items:flex-end}
+.chat-input{flex:1;background:var(--n);border:1px solid var(--b);border-radius:8px;padding:9px 12px;color:var(--t);font-family:var(--font);font-size:12px;resize:none;outline:none;max-height:80px;min-height:36px;line-height:1.4}
+.chat-input:focus{border-color:var(--y-border)}
+.chat-input::placeholder{color:var(--t4)}
+.chat-send{background:var(--y);color:var(--n);border:none;border-radius:8px;padding:8px 14px;font-family:var(--font);font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;transition:opacity .15s}
+.chat-send:hover{opacity:0.85}
+.chat-send:disabled{opacity:0.4;cursor:not-allowed}
+</style>
+</head>
+<body>
+<aside class="sidebar">
+<div class="s-logo">
+<div style="display:flex;flex-direction:column;gap:6px">
+<img src="data:image/jpeg;base64,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" alt="SolarKal" style="height:22px;width:auto;object-fit:contain;align-self:flex-start;mix-blend-mode:lighten">
+<div class="s-sub">Intelligence Platform</div>
+</div>
+</div>
+<div class="s-label">Overview</div>
+<div class="s-item active" onclick="showPage('home',this)"><div class="s-dot" style="background:var(--y)"></div>Dashboard</div>
+<div class="s-label">Modules</div>
+<div class="s-item" onclick="showPage('pipeline',this)"><div class="s-dot" style="background:var(--g)"></div>Pipeline</div>
+<div class="s-item" onclick="showPage('conversion',this)"><div class="s-dot" style="background:var(--bl)"></div>Conversion Analytics</div>
+<div class="s-item" onclick="showPage('vendors',this)"><div class="s-dot" style="background:var(--p)"></div>Vendor Intelligence</div>
+<div class="s-item" onclick="showPage('pricing',this)"><div class="s-dot" style="background:var(--w)"></div>Pricing Intelligence</div>
+<div class="s-item" onclick="showPage('portfolio',this)"><div class="s-dot" style="background:var(--g)"></div>Portfolio & Geography</div>
+<div class="s-label">Client</div>
+<div class="s-item" onclick="showPage('client-portal',this)"><div class="s-dot" style="background:var(--bl)"></div>Client Portal</div>
+<div class="s-label">Marketplace</div>
+<div class="s-item" onclick="showPage('mkt-stats',this)"><div class="s-dot" style="background:var(--y)"></div>Platform Statistics</div>
+<div class="s-item" onclick="showPage('mkt-rfps',this)"><div class="s-dot" style="background:var(--w)"></div>Active RFPs</div>
+<div class="s-item" onclick="showPage('mkt-epc',this)"><div class="s-dot" style="background:var(--g)"></div>EPC Pricing Trends</div>
+<div class="s-label">Tools</div>
+<div class="s-item" onclick="showPage('projector',this)"><div class="s-dot" style="background:var(--y)"></div>Revenue Projector</div>
+<div class="s-footer">
+<div style="display:flex;align-items:center;gap:7px;margin-bottom:5px">
+<div class="s-avatar">DW</div>
+<div><div style="color:var(--t);font-size:11px;font-weight:600">David Wei</div><div>Admin</div></div>
+</div>
+<div>RBC synced May 11, 2026</div>
+</div>
+</aside>
+
+<div class="main">
+<div class="topbar">
+<div class="page-title" id="pageTitle"><span>Dashboard</span></div>
+<div class="top-right">
+<div class="badge-live">Live</div>
+<div class="ts">May 31, 2026</div>
+<button class="chat-toggle-btn" onclick="toggleChat()" id="chatToggleBtn"><img src="data:image/png;base64,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" style="border-radius:4px">AI Analyst</button>
+</div>
+</div>
+<div class="content">
+
+<!-- ============ HOME ============ -->
+<div class="page active" id="page-home">
+<div class="kpi-grid">
+<div class="kpi">
+<div class="kpi-label">2026 Projected Revenue</div>
+<div class="kpi-val" style="color:var(--y)">$3.83M</div>
+<div class="kpi-sub"><span class="up">+91%</span> vs 2025 ($2.0M)</div>
+</div>
+<div class="kpi">
+<div class="kpi-label">2026 YTD Collected</div>
+<div class="kpi-val">$1.41M</div>
+<div class="kpi-sub">37% of projection</div>
+</div>
+<div class="kpi">
+<div class="kpi-label">Active Pipeline</div>
+<div class="kpi-val">112</div>
+<div class="kpi-sub">180 MW / $29.4M total</div>
+</div>
+<div class="kpi">
+<div class="kpi-label">Key Accounts</div>
+<div class="kpi-val">20</div>
+<div class="kpi-sub">$3.66M named revenue</div>
+</div>
+<div class="kpi">
+<div class="kpi-label">2027 Outlook</div>
+<div class="kpi-val" style="color:var(--t2)">$3.66M</div>
+<div class="kpi-sub"><span class="dn">-5%</span> vs 2026 projected</div>
+</div>
+</div>
+
+<div class="sec">Revenue</div>
+<div class="grid-2-1">
+<div class="mod">
+<div class="mod-h">
+<div class="mod-t">Annual Revenue Trajectory</div>
+<div class="mod-badge g">RBC Base Scenario</div>
+</div>
+<div class="chart-w" style="height:200px"><canvas id="revChart"></canvas></div>
+</div>
+<div class="mod">
+<div class="mod-h">
+<div class="mod-t">Revenue Composition</div>
+<div class="mod-badge">2026</div>
+</div>
+<div style="margin-bottom:12px">
+<div class="detail-row"><span>Community Solar</span><strong>$2.48M (65%)</strong></div>
+<div class="detail-row"><span>Behind The Meter</span><strong>$1.08M (28%)</strong></div>
+<div class="detail-row"><span>Portfolio/Upsell</span><strong>$0.17M (4%)</strong></div>
+<div class="detail-row"><span>Other</span><strong>$0.10M (3%)</strong></div>
+</div>
+<div style="border-top:1px solid var(--b);padding-top:10px">
+<div style="font-size:9px;color:var(--t4);font-weight:600;text-transform:uppercase;letter-spacing:.7px;margin-bottom:6px">Revenue by Source</div>
+<div class="detail-row"><span>Named Revenue (existing pipeline)</span><strong>$3.66M</strong></div>
+<div class="detail-row"><span>Forecast (new wins)</span><strong>$0.16M</strong></div>
+</div>
+</div>
+</div>
+
+<div class="sec">Top Clients by 2026 Projected Revenue</div>
+<div class="mod" style="margin-bottom:14px">
+<div style="display:grid;grid-template-columns:1fr auto auto auto auto;gap:8px;font-size:9px;font-weight:700;color:var(--t4);text-transform:uppercase;letter-spacing:.5px;padding:0 10px 8px;border-bottom:1px solid var(--b);margin-bottom:6px">
+<div>Client</div><div style="text-align:right">2025</div><div style="text-align:right">2026 Proj</div><div style="text-align:right">2027 Proj</div><div style="text-align:right;width:50px">YoY</div>
+</div>
+<div id="clientTable"></div>
+</div>
+
+<div class="sec">Pipeline at a Glance</div>
+<div class="grid-2">
+<div class="mod">
+<div class="mod-h">
+<div class="mod-t">Stage Distribution (Active)</div>
+<div class="mod-badge">108 Projects</div>
+</div>
+<div class="funnel" id="homeFunnel"></div>
+</div>
+<div class="mod">
+<div class="mod-h">
+<div class="mod-t">Pipeline Value vs Expected</div>
+<div class="mod-badge r">Based on Cohort Data</div>
+</div>
+<div style="margin-bottom:8px">
+<div style="display:flex;gap:14px;margin-bottom:14px">
+<div><div style="font-size:9px;color:var(--t4);text-transform:uppercase;letter-spacing:.7px;font-weight:600">Raw Pipeline</div><div style="font-size:20px;font-weight:800;color:var(--t)">$28.9M</div></div>
+<div><div style="font-size:9px;color:var(--t4);text-transform:uppercase;letter-spacing:.7px;font-weight:600">Probability-Weighted</div><div style="font-size:20px;font-weight:800;color:var(--y)">$7.7M</div></div>
+<div><div style="font-size:9px;color:var(--t4);text-transform:uppercase;letter-spacing:.7px;font-weight:600">Implied Conversion</div><div style="font-size:20px;font-weight:800;color:var(--g)">27%</div></div>
+</div>
+</div>
+<div style="font-size:9px;color:var(--t4);font-weight:600;text-transform:uppercase;letter-spacing:.7px;margin-bottom:6px">Expected Value by Stage (Cohort-Weighted)</div>
+<div class="detail-row"><span>Option/Lease Signed ($10.5M raw)</span><strong style="color:var(--r)">$1.6M (15%)</strong></div>
+<div class="detail-row"><span>Awarded ($8.8M raw)</span><strong style="color:var(--w)">$1.5M (17%)</strong></div>
+<div class="detail-row"><span>Proj Accepted to Program ($4.9M raw)</span><strong style="color:var(--g)">$4.4M (89%)</strong></div>
+<div class="detail-row"><span>PTO/Operating ($0.5M raw)</span><strong style="color:var(--g)">$0.5M (100%)</strong></div>
+<div class="detail-row"><span>NTP/Construction ($1.2M raw)</span><strong style="color:var(--g)">$1.2M (100%)</strong></div>
+<div class="detail-row"><span>Vendor Contract Signed ($0.2M raw)</span><strong style="color:var(--g)">$0.2M (100%)</strong></div>
+<div class="detail-row"><span>Active RFP ($2.4M raw)</span><strong style="color:var(--r)">$0.07M (3%)</strong></div>
+<div class="detail-row"><span>PSA Signed ($0.9M raw)</span><strong style="color:var(--t4)">$0M (0%)</strong></div>
+</div>
+</div>
+</div>
+
+<!-- ============ PIPELINE ============ -->
+<div class="page" id="page-pipeline">
+<div class="tab-row">
+<div class="tab active" onclick="showPipeTab(this,'ptClients')">By Client</div>
+<div class="tab" onclick="showPipeTab(this,'ptStage')">By Stage</div>
+<div class="tab" onclick="showPipeTab(this,'ptGeo')">By Geography</div>
+</div>
+
+<div id="ptClients">
+<div class="kpi-grid" style="grid-template-columns:repeat(4,1fr);margin-bottom:16px">
+<div class="kpi"><div class="kpi-label">Active Clients</div><div class="kpi-val">42</div><div class="kpi-sub">102 total (incl. closed)</div></div>
+<div class="kpi"><div class="kpi-label">Total MW</div><div class="kpi-val">177</div><div class="kpi-sub">108 active projects</div></div>
+<div class="kpi"><div class="kpi-label">Pipeline Revenue</div><div class="kpi-val">$28.9M</div><div class="kpi-sub">Risk-adjusted: $7.7M</div></div>
+<div class="kpi"><div class="kpi-label">Avg $/Project</div><div class="kpi-val">$268K</div><div class="kpi-sub">Median: $190K</div></div>
+</div>
+<div class="legend" style="margin-bottom:12px">
+<div class="legend-item"><div class="legend-dot" style="background:var(--t4)"></div>PSA</div>
+<div class="legend-item"><div class="legend-dot" style="background:var(--bl)"></div>RFP</div>
+<div class="legend-item"><div class="legend-dot" style="background:var(--w)"></div>Awarded</div>
+<div class="legend-item"><div class="legend-dot" style="background:var(--p)"></div>Contract</div>
+<div class="legend-item"><div class="legend-dot" style="background:var(--y)"></div>Lease</div>
+<div class="legend-item"><div class="legend-dot" style="background:var(--g)"></div>Accepted</div>
+<div class="legend-item"><div class="legend-dot" style="background:#fff"></div>NTP</div>
+<div class="legend-item"><div class="legend-dot" style="background:var(--g)"></div>PTO</div>
+</div>
+<div id="pipelineClients"></div>
+</div>
+
+<div id="ptStage" style="display:none">
+<div class="mod">
+<div class="mod-h"><div class="mod-t">Full Pipeline Funnel</div><div class="mod-badge">108 Active Projects</div></div>
+<div class="funnel" id="fullFunnel"></div>
+<div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--b)">
+<div style="font-size:9px;color:var(--t4);font-weight:600;text-transform:uppercase;letter-spacing:.7px;margin-bottom:8px">Stage Conversion Rates (from Cohort Data)</div>
+<div class="cohort-grid">
+<div class="cohort-header" style="text-align:left">Stage</div>
+<div class="cohort-header">Projects</div>
+<div class="cohort-header">MW</div>
+<div class="cohort-header">Revenue</div>
+<div class="cohort-header">Hist. Conv %</div>
+<div class="cohort-header">Expected $</div>
+<div class="cohort-header">Avg Days</div>
+<div class="cohort-header">Risk</div>
+
+<div class="cohort-label">PTO / Operating</div>
+<div class="cohort-cell conv-good conv-rate">4</div>
+<div class="cohort-cell conv-good">3.2</div>
+<div class="cohort-cell conv-good">$0.48M</div>
+<div class="cohort-cell conv-good conv-rate">100%</div>
+<div class="cohort-cell conv-good">$0.48M</div>
+<div class="cohort-cell conv-na">--</div>
+<div class="cohort-cell conv-good conv-rate">None</div>
+
+<div class="cohort-label">NTP / Construction</div>
+<div class="cohort-cell conv-good conv-rate">10</div>
+<div class="cohort-cell conv-good">9.3</div>
+<div class="cohort-cell conv-good">$1.16M</div>
+<div class="cohort-cell conv-good conv-rate">100%</div>
+<div class="cohort-cell conv-good">$1.16M</div>
+<div class="cohort-cell conv-na">--</div>
+<div class="cohort-cell conv-good conv-rate">Low</div>
+
+<div class="cohort-label">Proj Accepted</div>
+<div class="cohort-cell conv-good conv-rate">32</div>
+<div class="cohort-cell conv-good">34.9</div>
+<div class="cohort-cell conv-good">$4.93M</div>
+<div class="cohort-cell conv-good conv-rate">89%</div>
+<div class="cohort-cell conv-good">$4.39M</div>
+<div class="cohort-cell conv-na">Placeholder</div>
+<div class="cohort-cell conv-good conv-rate">Low</div>
+
+<div class="cohort-label">Vendor Contract</div>
+<div class="cohort-cell conv-good conv-rate">1</div>
+<div class="cohort-cell conv-good">1.3</div>
+<div class="cohort-cell conv-good">$0.19M</div>
+<div class="cohort-cell conv-good conv-rate">100%</div>
+<div class="cohort-cell conv-good">$0.19M</div>
+<div class="cohort-cell conv-na">Placeholder</div>
+<div class="cohort-cell conv-good conv-rate">Low</div>
+
+<div class="cohort-label">Option / Lease</div>
+<div class="cohort-cell conv-bad conv-rate">29</div>
+<div class="cohort-cell conv-bad">63.4</div>
+<div class="cohort-cell conv-bad">$10.54M</div>
+<div class="cohort-cell conv-bad conv-rate">15%</div>
+<div class="cohort-cell conv-bad">$1.58M</div>
+<div class="cohort-cell conv-na">Placeholder</div>
+<div class="cohort-cell conv-bad conv-rate">High</div>
+
+<div class="cohort-label">Awarded</div>
+<div class="cohort-cell conv-ok conv-rate">23</div>
+<div class="cohort-cell conv-ok">49.9</div>
+<div class="cohort-cell conv-ok">$8.75M</div>
+<div class="cohort-cell conv-ok conv-rate">17%</div>
+<div class="cohort-cell conv-ok">$1.49M</div>
+<div class="cohort-cell conv-na">Placeholder</div>
+<div class="cohort-cell conv-ok conv-rate">Med</div>
+
+<div class="cohort-label">Active RFP</div>
+<div class="cohort-cell conv-bad conv-rate">8</div>
+<div class="cohort-cell conv-bad">13.7</div>
+<div class="cohort-cell conv-bad">$2.42M</div>
+<div class="cohort-cell conv-bad conv-rate">3%</div>
+<div class="cohort-cell conv-bad">$0.07M</div>
+<div class="cohort-cell conv-na">Placeholder</div>
+<div class="cohort-cell conv-bad conv-rate">High</div>
+
+<div class="cohort-label">PSA Signed</div>
+<div class="cohort-cell conv-bad conv-rate">5</div>
+<div class="cohort-cell conv-bad">4.8</div>
+<div class="cohort-cell conv-bad">$0.92M</div>
+<div class="cohort-cell conv-bad conv-rate">0%</div>
+<div class="cohort-cell conv-bad">$0</div>
+<div class="cohort-cell conv-na">Placeholder</div>
+<div class="cohort-cell conv-bad conv-rate">V. High</div>
+</div>
+</div>
+</div>
+</div>
+
+<div id="ptGeo" style="display:none">
+<div class="mod">
+<div class="mod-h"><div class="mod-t">Pipeline by State</div></div>
+<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px" id="geoGrid"></div>
+</div>
+</div>
+</div>
+
+<!-- ============ CONVERSION ============ -->
+<div class="page" id="page-conversion">
+<div class="sec">Cohort Vintage Analysis</div>
+<div style="font-size:12px;color:var(--t2);margin-bottom:16px;line-height:1.6">
+Each row shows where projects from a given vintage ended up. Conversion % = revenue that reached Project Complete + NTP vs. total revenue at time of snapshot.
+</div>
+<div class="legend" style="margin-bottom:16px">
+<div class="legend-item"><div class="legend-dot" style="background:#22c98a"></div>Completed / NTP ($K)</div>
+<div class="legend-item"><div class="legend-dot" style="background:#FBD707"></div>Still Active ($K)</div>
+<div class="legend-item"><div class="legend-dot" style="background:#f05c5c"></div>Closed Lost / On Hold ($K)</div>
+</div>
+
+<div class="grid-2" style="margin-bottom:20px">
+<div class="mod">
+<div class="mod-h"><div class="mod-t">May 2023 Vintage (3-Year Forward)</div><div class="mod-badge">74 projects / $13M</div></div>
+<div style="display:flex;gap:14px;margin-bottom:14px">
+<div><div style="font-size:9px;color:var(--t4);text-transform:uppercase;letter-spacing:.7px;font-weight:600">Completed + NTP</div><div style="font-size:18px;font-weight:800;color:var(--g)">$3.0M</div></div>
+<div><div style="font-size:9px;color:var(--t4);text-transform:uppercase;letter-spacing:.7px;font-weight:600">Conversion</div><div style="font-size:18px;font-weight:800;color:var(--y)">20%</div></div>
+<div><div style="font-size:9px;color:var(--t4);text-transform:uppercase;letter-spacing:.7px;font-weight:600">Still Active</div><div style="font-size:18px;font-weight:800;color:var(--t2)">$2.5M</div></div>
+</div>
+<div class="chart-w" style="height:140px"><canvas id="cohort2023"></canvas></div>
+</div>
+<div class="mod">
+<div class="mod-h"><div class="mod-t">May 2024 Vintage (2-Year Forward)</div><div class="mod-badge">88 projects / $14M</div></div>
+<div style="display:flex;gap:14px;margin-bottom:14px">
+<div><div style="font-size:9px;color:var(--t4);text-transform:uppercase;letter-spacing:.7px;font-weight:600">Completed + NTP</div><div style="font-size:18px;font-weight:800;color:var(--g)">$2.8M</div></div>
+<div><div style="font-size:9px;color:var(--t4);text-transform:uppercase;letter-spacing:.7px;font-weight:600">Conversion</div><div style="font-size:18px;font-weight:800;color:var(--y)">20%</div></div>
+<div><div style="font-size:9px;color:var(--t4);text-transform:uppercase;letter-spacing:.7px;font-weight:600">Still Active</div><div style="font-size:18px;font-weight:800;color:var(--t2)">$4.7M</div></div>
+</div>
+<div class="chart-w" style="height:140px"><canvas id="cohort2024"></canvas></div>
+</div>
+</div>
+
+<div class="grid-2">
+<div class="mod">
+<div class="mod-h"><div class="mod-t">Apr 2025 Vintage (1-Year Forward)</div><div class="mod-badge">96 projects / $22M</div></div>
+<div style="display:flex;gap:14px;margin-bottom:14px">
+<div><div style="font-size:9px;color:var(--t4);text-transform:uppercase;letter-spacing:.7px;font-weight:600">Completed + NTP</div><div style="font-size:18px;font-weight:800;color:var(--g)">$0.5M</div></div>
+<div><div style="font-size:9px;color:var(--t4);text-transform:uppercase;letter-spacing:.7px;font-weight:600">Conversion</div><div style="font-size:18px;font-weight:800;color:var(--w)">2%</div></div>
+<div><div style="font-size:9px;color:var(--t4);text-transform:uppercase;letter-spacing:.7px;font-weight:600">Still Active</div><div style="font-size:18px;font-weight:800;color:var(--t2)">$15.9M</div></div>
+</div>
+<div class="chart-w" style="height:140px"><canvas id="cohort2025"></canvas></div>
+</div>
+<div class="mod">
+<div class="mod-h"><div class="mod-t">Stage Conversion Summary</div><div class="mod-badge bl">All Vintages</div></div>
+<div style="font-size:10px;color:var(--t2);margin-bottom:10px">Completion rate = % of revenue reaching Complete or NTP</div>
+<div class="cohort-grid" style="grid-template-columns:auto repeat(3,1fr) auto">
+<div class="cohort-header" style="text-align:left">Stage at Snapshot</div>
+<div class="cohort-header">2023 (3Y)</div>
+<div class="cohort-header">2024 (2Y)</div>
+<div class="cohort-header">2025 (1Y)</div>
+<div class="cohort-header">Blended</div>
+
+<div class="cohort-label">Vendor Contract</div>
+<div class="cohort-cell conv-good conv-rate">100%</div>
+<div class="cohort-cell conv-good conv-rate">100%</div>
+<div class="cohort-cell conv-good conv-rate">100%</div>
+<div class="cohort-cell conv-good conv-rate">100%</div>
+
+<div class="cohort-label">NTP / Construction</div>
+<div class="cohort-cell conv-good conv-rate">100%</div>
+<div class="cohort-cell conv-good conv-rate">100%</div>
+<div class="cohort-cell conv-na conv-rate">n/a</div>
+<div class="cohort-cell conv-good conv-rate">100%</div>
+
+<div class="cohort-label">Proj Accepted</div>
+<div class="cohort-cell conv-na conv-rate">n/a</div>
+<div class="cohort-cell conv-good conv-rate">89%</div>
+<div class="cohort-cell conv-ok conv-rate">16%</div>
+<div class="cohort-cell conv-good conv-rate">~89%</div>
+
+<div class="cohort-label">Awarded</div>
+<div class="cohort-cell conv-ok conv-rate">34%</div>
+<div class="cohort-cell conv-bad conv-rate">0%</div>
+<div class="cohort-cell conv-bad conv-rate">0%</div>
+<div class="cohort-cell conv-ok conv-rate">~17%</div>
+
+<div class="cohort-label">Option / Lease</div>
+<div class="cohort-cell conv-ok conv-rate">17%</div>
+<div class="cohort-cell conv-bad conv-rate">0%</div>
+<div class="cohort-cell conv-bad conv-rate">0%</div>
+<div class="cohort-cell conv-bad conv-rate">~15%</div>
+
+<div class="cohort-label">Active RFP</div>
+<div class="cohort-cell conv-bad conv-rate">3%</div>
+<div class="cohort-cell conv-na conv-rate">n/a</div>
+<div class="cohort-cell conv-bad conv-rate">0%</div>
+<div class="cohort-cell conv-bad conv-rate">~3%</div>
+
+<div class="cohort-label">PSA / Pre RFP</div>
+<div class="cohort-cell conv-bad conv-rate">0%</div>
+<div class="cohort-cell conv-bad conv-rate">0%</div>
+<div class="cohort-cell conv-bad conv-rate">0%</div>
+<div class="cohort-cell conv-bad conv-rate">0%</div>
+</div>
+</div>
+</div>
+</div>
+
+<!-- ============ VENDORS ============ -->
+<div class="page" id="page-vendors">
+<div class="sec">Vendor Intelligence</div>
+<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px">
+<div class="kpi"><div class="kpi-label">Scored Vendors</div><div class="kpi-val">67</div><div class="kpi-sub">230 total in directory</div></div>
+<div class="kpi"><div class="kpi-label">Avg Rating</div><div class="kpi-val" style="color:var(--y)">8.9</div><div class="kpi-sub">out of 10.0</div></div>
+<div class="kpi"><div class="kpi-label">Top Tier (10/10)</div><div class="kpi-val" style="color:var(--g)">18</div><div class="kpi-sub">vendors rated 10</div></div>
+<div class="kpi"><div class="kpi-label">Most Active (LTM)</div><div class="kpi-val" style="font-size:13px;color:var(--g)">Solar Landscape</div><div class="kpi-sub">18 bids, 9 awarded</div></div>
+</div>
+
+<div class="tab-row">
+<div class="tab active" onclick="showVendorTab(this,'vendorCards')">Scorecard View</div>
+<div class="tab" onclick="showVendorTab(this,'vendorProfiles')">Vendor Profiles</div>
+<div class="tab" onclick="showVendorTab(this,'vendorBidStats')">Bid Statistics</div>
+</div>
+
+<div id="vendorCards">
+<div style="font-size:10px;color:var(--t3);margin-bottom:14px;font-style:italic">Ratings are PD-validated manual inputs across 6 categories. Scores 1-5. Overall = weighted average.</div>
+<div id="devCards"></div>
+</div>
+
+<div id="vendorProfiles" style="display:none">
+<div id="vendorProfileCards"></div>
+</div>
+
+<div id="vendorBidStats" style="display:none">
+<div class="mod">
+<div class="mod-h"><div class="mod-t">Top 25 Vendors by Bid Activity</div><div class="mod-badge">Click column headers to sort</div></div>
+<div style="overflow-x:auto">
+<table class="pricing-tbl" id="bidStatsTable">
+<thead><tr>
+<th style="cursor:pointer" onclick="sortBidTable(0)">Rank</th>
+<th style="cursor:pointer;min-width:160px" onclick="sortBidTable(1)">Vendor</th>
+<th style="cursor:pointer" onclick="sortBidTable(2)">Rating</th>
+<th style="cursor:pointer" onclick="sortBidTable(3)">Bids (All-Time)</th>
+<th style="cursor:pointer" onclick="sortBidTable(4)">Wins (All-Time)</th>
+<th style="cursor:pointer" onclick="sortBidTable(5)">Win Rate</th>
+<th style="cursor:pointer" onclick="sortBidTable(6)">Bids (LTM)</th>
+<th style="cursor:pointer" onclick="sortBidTable(7)">Awarded (LTM)</th>
+<th style="cursor:pointer" onclick="sortBidTable(8)">MW Developed</th>
+<th style="cursor:pointer" onclick="sortBidTable(9)">Finance</th>
+<th>SK Projects</th>
+</tr></thead>
+<tbody id="bidStatsBody"></tbody>
+</table>
+</div>
+</div>
+</div>
+</div>
+
+<!-- ============ PRICING ============ -->
+<div class="page" id="page-pricing">
+<div class="sec">Pricing Intelligence</div>
+
+<div class="grid-2-1" style="margin-bottom:14px">
+<div class="mod">
+<div class="mod-h"><div class="mod-t">Market Map</div><div class="mod-badge g" id="mapBadge">PPA Rate</div></div>
+<div style="margin-bottom:10px;display:flex;gap:4px;flex-wrap:wrap">
+<div class="proj-type-btn active" onclick="setMapMetric(this,'ppa')">PPA Rate</div>
+<div class="proj-type-btn" onclick="setMapMetric(this,'er')">Energy Rate</div>
+<div class="proj-type-btn" onclick="setMapMetric(this,'tk')">Turnkey $/W</div>
+<div class="proj-type-btn" onclick="setMapMetric(this,'lease')">Lease Rate</div>
+<div class="proj-type-btn" onclick="setMapMetric(this,'s1')"><100kW TK</div>
+<div class="proj-type-btn" onclick="setMapMetric(this,'s2')">100-250kW TK</div>
+<div class="proj-type-btn" onclick="setMapMetric(this,'s3')">250-500kW TK</div>
+<div class="proj-type-btn" onclick="setMapMetric(this,'s4')">500-1MW TK</div>
+</div>
+<div id="pricingMapContainer"></div>
+</div>
+
+<div class="mod">
+<div class="mod-h"><div class="mod-t">Summary</div></div>
+<div class="detail-row"><span>Markets covered</span><strong>16 states + DC</strong></div>
+<div class="detail-row"><span>Utility zones tracked</span><strong>24</strong></div>
+<div class="detail-row"><span>PPA rate range</span><strong>$0.07 - $0.12/kWh</strong></div>
+<div class="detail-row"><span>Turnkey cost range</span><strong>$1.70 - $2.30/W</strong></div>
+<div class="detail-row"><span>Lease rate range</span><strong>$0.50 - $1.25/sqft</strong></div>
+<div style="margin-top:14px;padding-top:10px;border-top:1px solid var(--b)">
+<div style="font-size:9px;color:var(--t4);font-weight:600;text-transform:uppercase;letter-spacing:.7px;margin-bottom:6px">Core Markets (by SK pipeline volume)</div>
+<div class="detail-row"><span>NJ (4 utilities)</span><strong style="color:var(--y)">99 projects</strong></div>
+<div class="detail-row"><span>IL</span><strong style="color:var(--y)">51 projects</strong></div>
+<div class="detail-row"><span>MA (3 utilities)</span><strong>35 projects</strong></div>
+<div class="detail-row"><span>NY (4 zones)</span><strong>32 projects</strong></div>
+<div class="detail-row"><span>MD</span><strong>20 projects</strong></div>
+<div class="detail-row"><span>CA (3 zones)</span><strong>13 projects</strong></div>
+</div>
+</div>
+</div>
+
+<div class="mod" style="margin-bottom:14px">
+<div class="mod-h"><div class="mod-t">Full Market Pricing Table</div><div class="mod-badge">Source: SamplePricingData</div></div>
+<div style="overflow-x:auto">
+<table class="pricing-tbl">
+<thead><tr>
+<th>Market</th>
+<th class="num">Energy Rate ($/kWh)</th>
+<th class="num">PPA Rate ($/kWh)</th>
+<th class="num">Lease Rate ($/sqft)</th>
+<th class="num">Turnkey $/W</th>
+<th class="num">&lt;100kW</th>
+<th class="num">100-250kW</th>
+<th class="num">250-500kW</th>
+<th class="num">500-1MW</th>
+</tr></thead>
+<tbody id="pricingTableBody"></tbody>
+</table>
+</div>
+</div>
+</div>
+
+<!-- ============ PORTFOLIO ============ -->
+<div class="page" id="page-portfolio">
+<div class="sec">Portfolio & Geography</div>
+
+<div style="display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:16px">
+<div class="kpi"><div class="kpi-label">Total Sites</div><div class="kpi-val">112</div><div class="kpi-sub">across 9 states</div></div>
+<div class="kpi"><div class="kpi-label">Total MW</div><div class="kpi-val">180</div><div class="kpi-sub">pipeline + operating</div></div>
+<div class="kpi"><div class="kpi-label">Sq Ft Activated</div><div class="kpi-val">6.2M</div><div class="kpi-sub">rooftop area</div></div>
+<div class="kpi"><div class="kpi-label">States Active</div><div class="kpi-val">9</div><div class="kpi-sub">NJ IL MA NY MD CA CO CT ME</div></div>
+<div class="kpi"><div class="kpi-label">Cross-Sell Opps</div><div class="kpi-val" style="color:var(--y)">24</div><div class="kpi-sub">adjacent rooftops</div></div>
+</div>
+
+<div class="mod" style="margin-bottom:14px">
+<div class="mod-h"><div class="mod-t">Project Map</div><div class="mod-badge g">Sample Data</div></div>
+<div id="portfolioMap" style="height:420px;border-radius:8px;overflow:hidden;background:var(--n)"></div>
+<div class="legend" style="margin-top:10px">
+<div class="legend-item"><div class="legend-dot" style="background:var(--g)"></div>PTO / Operating</div>
+<div class="legend-item"><div class="legend-dot" style="background:#fff"></div>NTP / Construction</div>
+<div class="legend-item"><div class="legend-dot" style="background:var(--y)"></div>Lease / Accepted</div>
+<div class="legend-item"><div class="legend-dot" style="background:var(--w)"></div>Awarded</div>
+<div class="legend-item"><div class="legend-dot" style="background:var(--bl)"></div>RFP / PSA</div>
+<div class="legend-item"><div class="legend-dot" style="background:var(--r)"></div>At Risk</div>
+</div>
+</div>
+
+<div class="grid-2">
+<div class="mod">
+<div class="mod-h"><div class="mod-t">Sites by State</div></div>
+<div id="portfolioStateTable"></div>
+</div>
+<div class="mod">
+<div class="mod-h"><div class="mod-t">Sites by Stage</div></div>
+<div id="portfolioStageTable"></div>
+</div>
+</div>
+</div>
+
+<!-- ============ CLIENT PORTAL ============ -->
+<div class="page" id="page-client-portal">
+
+<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+<div style="display:flex;align-items:center;gap:12px">
+<div style="font-size:10px;color:var(--t2);font-weight:600;text-transform:uppercase;letter-spacing:.5px">Client</div>
+<select id="clientPortalSelect" onchange="renderClientPortal()" style="padding:8px 14px;background:var(--n);border:1px solid var(--b);border-radius:8px;color:var(--y);font-family:var(--font);font-size:14px;font-weight:700;outline:none;cursor:pointer;min-width:200px;appearance:none">
+<option value="Faropoint">Faropoint</option>
+<option value="High Street">High Street Logistics</option>
+<option value="Plymouth">Plymouth REIT</option>
+<option value="Turnbridge">Turnbridge Equities</option>
+<option value="Bain">Bain Capital / Oliver Street</option>
+</select>
+</div>
+<div id="cpSummary" style="display:flex;gap:16px;align-items:flex-end"></div>
+</div>
+
+<div id="clientPortalContent"></div>
+
+</div>
+
+<!-- ============ PLATFORM STATISTICS ============ -->
+<div class="page" id="page-mkt-stats">
+<div class="sec">Platform Statistics</div>
+
+<div style="display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-bottom:16px">
+<div class="kpi"><div class="kpi-label">RFPs Conducted</div><div class="kpi-val" style="color:var(--y)">187</div><div class="kpi-sub">End-2025</div></div>
+<div class="kpi"><div class="kpi-label">Bids Received</div><div class="kpi-val">869</div><div class="kpi-sub">$6.3B aggregate value</div></div>
+<div class="kpi"><div class="kpi-label">Avg Bids/RFP</div><div class="kpi-val" style="color:var(--y)">8.3</div><div class="kpi-sub">up from 5.0 in 2022</div></div>
+<div class="kpi"><div class="kpi-label">Vendors in Network</div><div class="kpi-val">113</div><div class="kpi-sub">32 awarded</div></div>
+<div class="kpi"><div class="kpi-label">MW Built</div><div class="kpi-val" style="color:var(--g)">26.3</div><div class="kpi-sub">9 states</div></div>
+<div class="kpi"><div class="kpi-label">Client Savings</div><div class="kpi-val" style="color:var(--g)">29%</div><div class="kpi-sub">vs median bid</div></div>
+</div>
+
+<div class="grid-2" style="margin-bottom:14px">
+<div class="mod">
+<div class="mod-h"><div class="mod-t">RFP Stats</div><div class="mod-badge g">End-2025</div></div>
+<div style="overflow-x:auto">
+<table class="pricing-tbl">
+<thead><tr>
+<th>Metric</th><th class="num">End-2022</th><th class="num">Mid-2023</th><th class="num">End-2023</th><th class="num">Mid-2024</th><th class="num">End-2024</th><th class="num">Mid-2025</th><th class="num" style="color:var(--y)">End-2025</th>
+</tr></thead>
+<tbody>
+<tr><td>Total # of RFPs</td><td class="num">--</td><td class="num">108</td><td class="num">116</td><td class="num">123</td><td class="num">142</td><td class="num">157</td><td class="num highlight">187</td></tr>
+<tr><td># of Bids Received</td><td class="num">--</td><td class="num">446</td><td class="num">479</td><td class="num">528</td><td class="num">643</td><td class="num">715</td><td class="num highlight">869</td></tr>
+<tr><td>Value of Bids</td><td class="num">--</td><td class="num">$1.3B</td><td class="num">$1.6B</td><td class="num">$1.9B</td><td class="num">$2.9B</td><td class="num">$4.2B</td><td class="num highlight">$6.3B*</td></tr>
+<tr><td>Avg Bids per RFP</td><td class="num">5</td><td class="num">5.4</td><td class="num">5.9</td><td class="num">6.5</td><td class="num">7.7</td><td class="num">8.0</td><td class="num highlight">8.3</td></tr>
+<tr><td>Vendors Who Bid</td><td class="num">--</td><td class="num">66</td><td class="num">73</td><td class="num">84</td><td class="num">101</td><td class="num">106</td><td class="num highlight">113</td></tr>
+<tr><td>Companies Awarded</td><td class="num">--</td><td class="num">21</td><td class="num">24</td><td class="num">25</td><td class="num">28</td><td class="num">29</td><td class="num highlight">32</td></tr>
+<tr><td>Best-Price Award %</td><td class="num">--</td><td class="num">75%</td><td class="num">77%</td><td class="num">74%</td><td class="num">58%</td><td class="num">61%</td><td class="num highlight">59%</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+
+<div class="mod">
+<div class="mod-h"><div class="mod-t">Project Success</div><div class="mod-badge g">End-2025</div></div>
+<div style="overflow-x:auto">
+<table class="pricing-tbl">
+<thead><tr>
+<th>Metric</th><th class="num">End-2022</th><th class="num">End-2023</th><th class="num">Mid-2024</th><th class="num">End-2024</th><th class="num">Mid-2025</th><th class="num" style="color:var(--y)">End-2025</th>
+</tr></thead>
+<tbody>
+<tr><td># Active Projects</td><td class="num">N/A</td><td class="num">N/A</td><td class="num">54</td><td class="num">69</td><td class="num">105</td><td class="num highlight">114</td></tr>
+<tr><td>States Contracted</td><td class="num">N/A</td><td class="num">7</td><td class="num">8</td><td class="num">8</td><td class="num">9</td><td class="num highlight">9</td></tr>
+<tr><td>Aggregate MW Built</td><td class="num">N/A</td><td class="num">11.8</td><td class="num">12.7</td><td class="num">14.6</td><td class="num">21.9</td><td class="num highlight">26.3</td></tr>
+<tr><td>RFP Success Rate</td><td class="num">76%</td><td class="num">76%</td><td class="num">76%</td><td class="num">77%</td><td class="num">73%</td><td class="num highlight">72%</td></tr>
+<tr><td>Client Savings</td><td class="num">30%</td><td class="num">38%</td><td class="num">33%</td><td class="num">33%</td><td class="num">30%</td><td class="num highlight">29%</td></tr>
+<tr><td>Lost Project Rate</td><td class="num">--</td><td class="num">--</td><td class="num">--</td><td class="num">--</td><td class="num">--</td><td class="num highlight">27%</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</div>
+
+<!-- ============ ACTIVE RFPS ============ -->
+<div class="page" id="page-mkt-rfps">
+<div class="sec">Active RFPs on Procureware</div>
+<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:20px" id="activeRfpGrid"></div>
+</div>
+
+<!-- ============ EPC PRICING TRENDS ============ -->
+<div class="page" id="page-mkt-epc">
+<div class="sec">Nationwide Average EPC Pricing Over Time</div>
+<div class="mod" style="margin-bottom:14px">
+<div class="mod-h"><div class="mod-t">Average Turnkey EPC Cost ($/W) by System Size</div><div class="mod-badge">Nationwide Weighted Avg</div></div>
+<div class="chart-w" style="height:280px"><canvas id="epcTrendChart"></canvas></div>
+<div style="margin-top:12px;font-size:10px;color:var(--t4);font-style:italic">Source: SolarKal Procureware bid data. Nationwide weighted average across all markets. Placeholder data shown.</div>
+</div>
+
+<div class="grid-2">
+<div class="mod">
+<div class="mod-h"><div class="mod-t">Trend Insights</div></div>
+<div class="detail-row"><span>Avg EPC cost trend (2022-2026)</span><strong><span class="dn">$2.45 -> $2.05/W (-16%)</span></strong></div>
+<div class="detail-row"><span>Largest decline segment</span><strong>500kW-1MW (-21%)</strong></div>
+<div class="detail-row"><span>Most stable segment</span><strong>&lt;100kW (-8%)</strong></div>
+<div class="detail-row"><span>Bids per RFP growth</span><strong><span class="up">5.0 -> 8.3 (+66%)</span></strong></div>
+<div class="detail-row"><span>Best-price award rate</span><strong><span class="dn">75% -> 59%</span></strong></div>
+<div style="margin-top:10px;font-size:10px;color:var(--t3);line-height:1.5">EPC costs have declined ~16% since 2022, driven by increased vendor competition (8.3 bids/RFP vs 5.0) and supply chain normalization. Larger systems see steeper declines due to economies of scale.</div>
+</div>
+<div class="mod">
+<div class="mod-h"><div class="mod-t">Current Benchmark (Q2 2026)</div></div>
+<div class="detail-row"><span>&lt;100kW systems</span><strong>$2.72/W</strong></div>
+<div class="detail-row"><span>100-250kW systems</span><strong>$2.35/W</strong></div>
+<div class="detail-row"><span>250-500kW systems</span><strong>$2.12/W</strong></div>
+<div class="detail-row"><span>500kW-1MW systems</span><strong style="color:var(--g)">$1.92/W</strong></div>
+<div class="detail-row"><span>Overall weighted avg</span><strong style="color:var(--y)">$2.05/W</strong></div>
+<div style="margin-top:12px;padding-top:10px;border-top:1px solid var(--b)">
+<div style="font-size:9px;color:var(--t4);font-weight:600;text-transform:uppercase;letter-spacing:.7px;margin-bottom:6px">Regional Variation</div>
+<div class="detail-row"><span>Lowest avg market</span><strong>FL ($1.70/W)</strong></div>
+<div class="detail-row"><span>Highest avg market</span><strong>NY-LI ($2.30/W)</strong></div>
+<div class="detail-row"><span>Spread</span><strong>$0.60/W</strong></div>
+</div>
+</div>
+</div>
+</div>
+
+<!-- ============ PROJECTOR ============ -->
+<div class="page" id="page-projector">
+
+<div style="display:grid;grid-template-columns:340px 1fr;gap:20px;align-items:start">
+
+<!-- INPUT PANEL -->
+<div class="mod" style="position:sticky;top:0">
+<div class="mod-h"><div class="mod-t">Portfolio Inputs</div></div>
+
+<div style="margin-bottom:14px">
+<label style="font-size:10px;font-weight:600;color:var(--t2);text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:5px">Number of Buildings</label>
+<input type="number" id="pBldgs" value="40" min="1" max="500" style="width:100%;padding:8px 10px;background:var(--n);border:1px solid var(--b);border-radius:6px;color:var(--t);font-family:var(--font);font-size:14px;font-weight:700;outline:none" onfocus="this.style.borderColor='var(--y-border)'" onblur="this.style.borderColor='var(--b)'">
+</div>
+
+<div style="margin-bottom:14px">
+<label style="font-size:10px;font-weight:600;color:var(--t2);text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:5px">Avg System Size (kW)</label>
+<input type="number" id="pKw" value="600" min="50" max="10000" step="50" style="width:100%;padding:8px 10px;background:var(--n);border:1px solid var(--b);border-radius:6px;color:var(--t);font-family:var(--font);font-size:14px;font-weight:700;outline:none" onfocus="this.style.borderColor='var(--y-border)'" onblur="this.style.borderColor='var(--b)'">
+</div>
+
+<div style="margin-bottom:14px">
+<label style="font-size:10px;font-weight:600;color:var(--t2);text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:5px">Primary Market</label>
+<select id="pMarket" style="width:100%;padding:8px 10px;background:var(--n);border:1px solid var(--b);border-radius:6px;color:var(--t);font-family:var(--font);font-size:13px;font-weight:600;outline:none;cursor:pointer;appearance:none">
+<option value="NJ">New Jersey</option>
+<option value="IL">Illinois</option>
+<option value="MA">Massachusetts</option>
+<option value="NY">New York</option>
+<option value="MD">Maryland</option>
+<option value="CA">California</option>
+<option value="CT">Connecticut</option>
+</select>
+</div>
+
+<div style="margin-bottom:14px">
+<label style="font-size:10px;font-weight:600;color:var(--t2);text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:5px">Project Type</label>
+<div style="display:flex;gap:6px">
+<div id="typeCS" class="proj-type-btn active" onclick="setType('CS')">Community Solar</div>
+<div id="typeBTM" class="proj-type-btn" onclick="setType('BTM')">Behind the Meter</div>
+</div>
+</div>
+
+<div style="margin-bottom:14px">
+<label style="font-size:10px;font-weight:600;color:var(--t2);text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:5px">Scenario</label>
+<div style="display:flex;gap:6px">
+<div id="scenLow" class="proj-type-btn" onclick="setScenario('low')">Low</div>
+<div id="scenBase" class="proj-type-btn active" onclick="setScenario('base')">Base</div>
+<div id="scenHigh" class="proj-type-btn" onclick="setScenario('high')">High</div>
+</div>
+</div>
+
+<button onclick="runProjection()" style="width:100%;padding:10px;background:var(--y);color:var(--n);font-family:var(--font);font-size:13px;font-weight:700;border:none;border-radius:6px;cursor:pointer;letter-spacing:.3px;transition:opacity .15s" onmouseover="this.style.opacity=0.85" onmouseout="this.style.opacity=1">Run Projection</button>
+
+<div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--b)">
+<div style="font-size:9px;color:var(--t4);font-weight:600;text-transform:uppercase;letter-spacing:.7px;margin-bottom:6px">Assumptions Source</div>
+<div style="font-size:10px;color:var(--t3);line-height:1.5">
+Conversion rates from 3-year vintage cohort analysis (2023-2026). Fee/watt from 283 RFP outcomes. Stage durations are placeholders pending SF timestamp data.
+</div>
+</div>
+</div>
+
+<!-- OUTPUT PANEL -->
+<div id="projOutput">
+<div style="text-align:center;padding:60px 20px;color:var(--t3)">
+<div style="font-size:32px;margin-bottom:12px">&#9889;</div>
+<div style="font-size:14px;font-weight:600;margin-bottom:6px">Configure portfolio inputs and run projection</div>
+<div style="font-size:12px;color:var(--t4)">The projector applies SolarKal's historical conversion data to estimate revenue from a new portfolio</div>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+</div>
+
+<script>
+const pageTitles = {
+  home: '<span>Dashboard</span>',
+  projector: 'Revenue <span>Projector</span>',
+  pipeline: 'Pipeline <span>Intelligence</span>',
+  conversion: 'Conversion <span>Analytics</span>',
+  vendors: 'Vendor <span>Intelligence</span>',
+  pricing: 'Pricing <span>Intelligence</span>',
+  portfolio: 'Portfolio & <span>Geography</span>',
+  'client-portal': 'Client <span>Portal</span>',
+  'mkt-stats': 'Platform <span>Statistics</span>',
+  'mkt-rfps': 'Active <span>RFPs</span>',
+  'mkt-epc': 'EPC Pricing <span>Trends</span>'
+};
+
+function showPage(id, el) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-' + id).classList.add('active');
+  document.querySelectorAll('.s-item').forEach(s => s.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('pageTitle').innerHTML = pageTitles[id];
+}
+
+function showPipeTab(el, tabId) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  ['ptClients','ptStage','ptGeo'].forEach(id => {
+    document.getElementById(id).style.display = id === tabId ? 'block' : 'none';
+  });
+}
+
+const clients = [
+  {name:'Faropoint',r25:590,r26:1241,r27:331,proj:35,mw:36.9,stages:{pap:21,ols:10,awd:3,rfp:1},
+   rfps:[
+    {name:'NJ Portfolio 1.0 (Solar Landscape)',stage:'Accepted',mw:12.4,rev:'$218K',bldgs:[
+      {name:'123 Industrial Way, Edison NJ',kw:820,stage:'Accepted to Program',rfpDate:'2024-03-15',contractDate:'2024-08-22',acceptedDate:'2025-04-10',ntpDate:null},
+      {name:'456 Commerce Dr, Piscataway NJ',kw:650,stage:'Accepted to Program',rfpDate:'2024-03-15',contractDate:'2024-09-05',acceptedDate:'2025-06-18',ntpDate:null},
+      {name:'789 Warehouse Blvd, Somerset NJ',kw:1100,stage:'NTP Issued',rfpDate:'2024-03-15',contractDate:'2024-07-30',acceptedDate:'2025-01-22',ntpDate:'2025-11-04'},
+      {name:'+ 9 more buildings',kw:null,stage:'Various'},
+    ]},
+    {name:'NJ Portfolio 1.0 (Brightcore)',stage:'Accepted',mw:14.2,rev:'$422K',bldgs:[
+      {name:'100 Logistics Pkwy, Cranbury NJ',kw:950,stage:'Accepted to Program',rfpDate:'2024-03-15',contractDate:'2024-10-11',acceptedDate:'2025-07-20',ntpDate:null},
+      {name:'200 Distribution Ct, Monroe NJ',kw:1200,stage:'Accepted to Program',rfpDate:'2024-03-15',contractDate:'2024-09-28',acceptedDate:'2025-08-03',ntpDate:null},
+      {name:'+ 11 more buildings',kw:null,stage:'Various'},
+    ]},
+    {name:'NJ Portfolio 2.0',stage:'Vendor Selected',mw:4.8,rev:'$38K',bldgs:[
+      {name:'300 New Brunswick Ave, Perth Amboy NJ',kw:700,stage:'Vendor Selected',rfpDate:'2025-09-01',contractDate:null,acceptedDate:null,ntpDate:null},
+      {name:'+ 5 more buildings',kw:null,stage:'Pre-RFP'},
+    ]},
+    {name:'IL Portfolio',stage:'Accepted',mw:3.2,rev:'$435K',bldgs:[
+      {name:'500 Archer Ave, Chicago IL',kw:900,stage:'Accepted to Program',rfpDate:'2024-06-10',contractDate:'2024-12-18',acceptedDate:'2025-09-15',ntpDate:null},
+      {name:'+ 3 more buildings',kw:null,stage:'Various'},
+    ]},
+   ]},
+  {name:'Turnbridge Equities',r25:57,r26:459,r27:636,proj:6,mw:18.1,stages:{ols:4,awd:1,rfp:1},
+   rfps:[
+    {name:'NJ Industrial Portfolio',stage:'Option/Lease',mw:14.0,rev:'$380K',bldgs:[
+      {name:'1000 Jersey Ave, New Brunswick NJ',kw:2800,stage:'Option / Lease Signed',rfpDate:'2025-01-20',contractDate:'2025-06-15',acceptedDate:null,ntpDate:null},
+      {name:'+ 3 more buildings',kw:null,stage:'Various'},
+    ]},
+    {name:'MD Portfolio',stage:'RFP',mw:4.1,rev:'$79K',bldgs:[
+      {name:'2200 Corporate Dr, Hanover MD',kw:1400,stage:'Active RFP',rfpDate:'2026-02-10',contractDate:null,acceptedDate:null,ntpDate:null},
+      {name:'+ 1 more building',kw:null,stage:'Active RFP'},
+    ]},
+   ]},
+  {name:'Matrix Properties',r25:16,r26:337,r27:0,proj:3,mw:10.0,stages:{ols:2,awd:1},
+   rfps:[{name:'NJ Portfolio',stage:'Option/Lease',mw:10.0,rev:'$337K',bldgs:[{name:'Placeholder - 3 buildings',kw:null,stage:'Various'}]}]},
+  {name:'High Street Logistics',r25:176,r26:324,r27:794,proj:9,mw:24.6,stages:{awd:5,pap:2,ntp:1,pto:1},
+   rfps:[{name:'IL/NJ Portfolio',stage:'Mixed',mw:24.6,rev:'$324K',bldgs:[{name:'Placeholder - 9 buildings',kw:null,stage:'Various'}]}]},
+  {name:'Bain Capital',r25:299,r26:264,r27:316,proj:5,mw:8.8,stages:{pap:3,vcs:1,rfp:1},
+   rfps:[{name:'Oliver Street Portfolio',stage:'Mixed',mw:8.8,rev:'$264K',bldgs:[{name:'Placeholder - 5 buildings',kw:null,stage:'Various'}]}]},
+  {name:'Plymouth REIT',r25:116,r26:231,r27:412,proj:8,mw:19.3,stages:{ols:3,ntp:2,awd:1,pap:1},
+   rfps:[{name:'IL Portfolio',stage:'Mixed',mw:12.0,rev:'$150K',bldgs:[{name:'Placeholder - 5 buildings',kw:null,stage:'Various'}]},
+          {name:'NJ Portfolio',stage:'NTP',mw:7.3,rev:'$81K',bldgs:[{name:'Placeholder - 3 buildings',kw:null,stage:'Various'}]}]},
+  {name:'Realterm',r25:97,r26:216,r27:86,proj:5,mw:5.1,stages:{pap:3,awd:1,rfp:1},
+   rfps:[{name:'Multi-State Portfolio',stage:'Mixed',mw:5.1,rev:'$216K',bldgs:[{name:'Placeholder - 5 buildings',kw:null,stage:'Various'}]}]},
+  {name:'Sterling Organization',r25:18,r26:167,r27:90,proj:2,mw:2.6,stages:{pap:1,ols:1},
+   rfps:[{name:'NJ Portfolio',stage:'Mixed',mw:2.6,rev:'$167K',bldgs:[{name:'Placeholder - 2 buildings',kw:null,stage:'Various'}]}]},
+  {name:'Brennan Group',r25:44,r26:131,r27:233,proj:2,mw:3.7,stages:{ols:2},
+   rfps:[{name:'NJ Portfolio',stage:'Option/Lease',mw:3.7,rev:'$131K',bldgs:[{name:'Placeholder - 2 buildings',kw:null,stage:'Various'}]}]},
+  {name:'Bergen Logistics',r25:34,r26:122,r27:136,proj:1,mw:1.0,stages:{awd:1},
+   rfps:[{name:'Single Site',stage:'Awarded',mw:1.0,rev:'$122K',bldgs:[{name:'Placeholder - 1 building',kw:null,stage:'Awarded'}]}]},
+];
+
+// Toggle expand
+function toggleExpand(id) {
+  const el = document.getElementById(id);
+  const icon = document.getElementById('icon-'+id);
+  if(el) { el.classList.toggle('open'); }
+  if(icon) { icon.classList.toggle('open'); }
+}
+
+function fmtDate(d){if(!d)return'';const dt=new Date(d);const m=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];return m[dt.getMonth()]+' '+(dt.getFullYear()%100);}
+function daysSince(d){if(!d)return null;return Math.round((Date.now()-new Date(d))/(1000*60*60*24));}
+
+function milestoneTimeline(b){
+  if(!b.kw)return'';
+  const steps=[
+    {key:'rfpDate',label:'RFP',color:'var(--bl)'},
+    {key:'contractDate',label:'Contract',color:'var(--p)'},
+    {key:'acceptedDate',label:'Accepted',color:'var(--g)'},
+    {key:'ntpDate',label:'NTP',color:'#fff'},
+    {key:'ptoDate',label:'PTO',color:'var(--g)'},
+  ];
+  let h='<div style="display:flex;align-items:flex-start;gap:0;flex:1;min-width:200px">';
+  steps.forEach((s,i)=>{
+    const val=b[s.key];const done=!!val;const isLast=i===steps.length-1;
+    h+=`<div style="display:flex;flex-direction:column;align-items:center;min-width:55px">
+      <div style="width:10px;height:10px;border-radius:50%;background:${done?s.color:'var(--n5)'};border:2px solid ${done?s.color:'var(--t4)'};flex-shrink:0"></div>
+      <div style="font-size:7px;color:${done?s.color:'var(--t4)'};margin-top:2px;font-weight:${done?'700':'500'}">${s.label}</div>
+      <div style="font-size:7px;color:var(--t3)">${done?fmtDate(val):''}</div>
+    </div>`;
+    if(!isLast){const nd=!!b[steps[i+1].key];h+=`<div style="flex:1;height:2px;background:${done&&nd?'var(--g)':'var(--b)'};margin:4px -4px 0"></div>`;}
+  });
+  h+='</div>';return h;
+}
+
+function renderBldgRow(b){
+  if(!b.kw)return`<div class="bldg-row" style="grid-template-columns:1fr"><div style="color:var(--t3);font-style:italic">${b.name}</div></div>`;
+  const days=daysSince(b.rfpDate);const daysStr=days!==null?days+'d':'';
+  const daysColor=days===null?'var(--t3)':days>550?'var(--r)':days>365?'var(--w)':'var(--g)';
+  return`<div class="bldg-row" style="grid-template-columns:170px 1fr auto auto">
+    <div style="color:var(--t);font-weight:600;font-size:10px">${b.name}</div>
+    ${milestoneTimeline(b)}
+    <div style="color:var(--t2);white-space:nowrap">${b.kw}kW</div>
+    <div style="color:${daysColor};font-size:9px;font-weight:600;white-space:nowrap;min-width:40px;text-align:right">${daysStr}</div>
+  </div>`;
+}
+
+const stageLabels = {psa:'PSA',rfp:'RFP',awd:'Awarded',vcs:'Contract',ols:'Lease',pap:'Accepted',ntp:'NTP'};
+const stageColors2 = {psa:'var(--t4)',rfp:'var(--bl)',awd:'var(--w)',vcs:'var(--p)',ols:'var(--y)',pap:'var(--g)',ntp:'#fff'};
+
+function renderClientTable() {
+  const ct = document.getElementById('clientTable');
+  let h = '';
+  clients.forEach((c,ci) => {
+    const yoy = c.r25 > 10 ? Math.round((c.r26/c.r25 - 1)*100) : null;
+    const yoyStr = yoy !== null ? `<span class="${yoy>=0?'up':'dn'}">${yoy>=0?'+':''}${yoy}%</span>` : '<span style="color:var(--t4)">new</span>';
+    const cid = 'ct-'+ci;
+    h += `<div class="expand-row" onclick="toggleExpand('${cid}')" style="display:grid;grid-template-columns:16px 1fr auto auto auto auto;gap:8px;padding:7px 10px;background:var(--n);border-radius:6px;border:1px solid var(--b);margin-bottom:2px;font-size:11px;align-items:center">
+      <div class="expand-icon" id="icon-${cid}">&#9654;</div>
+      <div><span style="font-weight:600;color:var(--t)">${c.name}</span> <span style="color:var(--t3);font-size:10px">${c.proj} proj / ${c.mw.toFixed(1)} MW</span></div>
+      <div style="text-align:right;color:var(--t2)">$${c.r25}K</div>
+      <div style="text-align:right;font-weight:700;color:var(--y)">$${c.r26.toLocaleString()}K</div>
+      <div style="text-align:right;color:var(--t2)">$${c.r27}K</div>
+      <div style="text-align:right;width:50px">${yoyStr}</div>
+    </div>`;
+    h += `<div class="rfp-group" id="${cid}">`;
+    (c.rfps||[]).forEach((rfp,ri) => {
+      const rid = cid+'-rfp'+ri;
+      h += `<div class="rfp-row" onclick="event.stopPropagation();toggleExpand('${rid}')" style="grid-template-columns:16px 1fr auto auto auto">
+        <div class="expand-icon" id="icon-${rid}" style="font-size:8px">&#9654;</div>
+        <div><span style="font-weight:600;color:var(--y)">${rfp.name}</span></div>
+        <div style="color:var(--t2);font-size:9px">${rfp.stage}</div>
+        <div style="color:var(--t2)">${rfp.mw} MW</div>
+        <div style="color:var(--y);font-weight:700">${rfp.rev}</div>
+      </div>`;
+      h += `<div class="bldg-group" id="${rid}">`;
+      (rfp.bldgs||[]).forEach(b => { h += renderBldgRow(b); });
+      h += '</div>';
+    });
+    h += '</div>';
+  });
+  ct.innerHTML = h + '<div style="text-align:center;font-size:10px;color:var(--t4);padding:8px 0">Showing top 10 of 42 active clients. Click to expand RFPs and buildings.</div>';
+}
+
+function renderFunnel(containerId) {
+  const stages = [
+    {label:'PSA',count:5,mw:4.8,rev:0.92,color:'var(--t4)'},
+    {label:'RFP',count:8,mw:13.7,rev:2.42,color:'var(--bl)'},
+    {label:'Awarded',count:23,mw:49.9,rev:8.75,color:'var(--w)'},
+    {label:'Contract',count:1,mw:1.3,rev:0.19,color:'var(--p)'},
+    {label:'Lease',count:29,mw:63.4,rev:10.54,color:'var(--y)'},
+    {label:'Accepted',count:32,mw:34.9,rev:4.93,color:'var(--g)'},
+    {label:'NTP',count:10,mw:9.3,rev:1.16,color:'#fff'},
+    {label:'PTO',count:4,mw:3.2,rev:0.48,color:'var(--g)'},
+  ];
+  const maxRev = Math.max(...stages.map(s=>s.rev));
+  const el = document.getElementById(containerId);
+  let h = '';
+  stages.forEach(s => {
+    const w = Math.max(8, s.rev/maxRev*100);
+    const textColor = s.color === '#fff' ? 'var(--n)' : (w < 30 ? 'var(--t)' : 'var(--n)');
+    h += `<div class="f-row">
+      <div class="f-label">${s.label}</div>
+      <div class="f-bar-w"><div class="f-bar" style="width:${w}%;background:${s.color};color:${textColor}">${s.count} / ${s.mw.toFixed(1)}MW / $${s.rev.toFixed(1)}M</div></div>
+      <div class="f-count">${s.count}</div>
+    </div>`;
+  });
+  el.innerHTML = h;
+}
+
+function renderPipelineClients() {
+  const el = document.getElementById('pipelineClients');
+  let h = '';
+  const sk = ['psa','rfp','awd','vcs','ols','pap','ntp','pto'];
+  const sc = ['stage-psa','stage-rfp','stage-awd','stage-vcs','stage-ols','stage-pap','stage-ntp','stage-pto'];
+  const stageNames = {psa:'PSA',rfp:'RFP',awd:'AWD',vcs:'VCS',ols:'Lease',pap:'Acc',ntp:'NTP',pto:'PTO'};
+  // MW and revenue per stage per client (placeholder aggregations)
+  const stageMwRev = {
+    'Faropoint':     {rfp:{mw:1.2,rev:0.2},awd:{mw:3.5,rev:0.6},ols:{mw:10.8,rev:1.8},pap:{mw:18.2,rev:3.0},ntp:{mw:3.2,rev:0.5}},
+    'Turnbridge Equities':  {rfp:{mw:4.1,rev:0.4},awd:{mw:2.0,rev:0.3},ols:{mw:12.0,rev:2.1}},
+    'Matrix Properties':    {awd:{mw:3.3,rev:0.6},ols:{mw:6.7,rev:1.1}},
+    'High Street Logistics': {awd:{mw:12.5,rev:2.2},pap:{mw:7.0,rev:1.2},ntp:{mw:3.8,rev:0.7},pto:{mw:1.3,rev:0.2}},
+    'Bain Capital':  {rfp:{mw:1.5,rev:0.3},vcs:{mw:1.8,rev:0.3},pap:{mw:5.5,rev:0.9}},
+    'Plymouth REIT': {awd:{mw:2.0,rev:0.4},ols:{mw:6.5,rev:1.1},pap:{mw:3.5,rev:0.6},ntp:{mw:7.3,rev:1.2}},
+    'Realterm':      {rfp:{mw:0.8,rev:0.1},awd:{mw:1.0,rev:0.2},pap:{mw:3.3,rev:0.6}},
+    'Sterling Organization': {ols:{mw:1.0,rev:0.2},pap:{mw:1.6,rev:0.3}},
+    'Brennan Group': {ols:{mw:3.7,rev:0.6}},
+    'Bergen Logistics': {awd:{mw:1.0,rev:0.2}},
+  };
+  clients.forEach((c,ci) => {
+    const total = Object.values(c.stages).reduce((a,b)=>a+b,0);
+    const cmr = stageMwRev[c.name] || {};
+    let barH = '<div class="stage-bar" style="height:28px;gap:2px">';
+    sk.forEach((k,i) => {
+      const v=c.stages[k]||0;
+      if(v>0) {
+        const pct = v/total*100;
+        const mw = cmr[k]?.mw || 0;
+        const rev = cmr[k]?.rev || 0;
+        const txtColor = k==='ntp'?'var(--n)':'rgba(0,0,0,0.7)';
+        let label = '';
+        if(pct > 20) label = stageNames[k]+' '+v+' | '+mw.toFixed(1)+'MW | $'+rev.toFixed(1)+'M';
+        else if(pct > 12) label = stageNames[k]+' '+v+' | '+mw.toFixed(1)+'MW';
+        else if(pct > 6) label = v+'';
+        barH+=`<div class="${sc[i]}" style="width:${pct}%;display:flex;align-items:center;justify-content:center;font-size:7.5px;font-weight:700;color:${txtColor};letter-spacing:.2px;overflow:hidden;white-space:nowrap;padding:0 4px">${label}</div>`;
+      }
+    });
+    barH += '</div>';
+    const pid = 'pl-'+ci;
+    h += `<div class="client-row expand-row" style="grid-template-columns:16px 1fr 1fr auto auto" onclick="toggleExpand('${pid}')">
+      <div class="expand-icon" id="icon-${pid}">&#9654;</div>
+      <div><div class="c-name">${c.name}</div><div class="c-meta">${c.proj} projects / ${(c.rfps||[]).length} RFPs</div></div>
+      <div>${barH}</div>
+      <div class="mw-tag">${c.mw.toFixed(1)} MW</div>
+      <div><div class="c-rev">$${c.r26.toLocaleString()}K</div><div class="c-rev-sub">2026 proj.</div></div>
+    </div>`;
+    h += `<div class="rfp-group" id="${pid}">`;
+    (c.rfps||[]).forEach((rfp,ri) => {
+      const rid = pid+'-r'+ri;
+      h += `<div class="rfp-row" onclick="event.stopPropagation();toggleExpand('${rid}')" style="grid-template-columns:16px 1fr auto auto auto">
+        <div class="expand-icon" id="icon-${rid}" style="font-size:8px">&#9654;</div>
+        <div style="font-weight:600;color:var(--y)">${rfp.name}</div>
+        <div style="color:var(--t3);font-size:9px">${rfp.stage}</div>
+        <div style="color:var(--t2)">${rfp.mw} MW</div>
+        <div style="color:var(--y);font-weight:600">${rfp.rev}</div>
+      </div>`;
+      h += `<div class="bldg-group" id="${rid}">`;
+      (rfp.bldgs||[]).forEach(b => { h += renderBldgRow(b); });
+      h += '</div>';
+    });
+    h += '</div>';
+  });
+  el.innerHTML = h + '<div style="text-align:center;font-size:10px;color:var(--t4);padding:8px 0">Showing top 10 of 42 active clients</div>';
+}
+
+function renderGeo() {
+  const geos = [
+    {st:'NJ',proj:99,mw:110,rev:'$16.2M',pct:34},
+    {st:'IL',proj:51,mw:95,rev:'$14.8M',pct:18},
+    {st:'MA',proj:35,mw:28,rev:'$4.2M',pct:12},
+    {st:'NY',proj:32,mw:22,rev:'$3.8M',pct:11},
+    {st:'MD',proj:20,mw:45,rev:'$7.6M',pct:7},
+    {st:'CA',proj:13,mw:15,rev:'$2.1M',pct:5},
+    {st:'CT',proj:4,mw:6,rev:'$1.1M',pct:1},
+    {st:'Other',proj:29,mw:57,rev:'$7.1M',pct:10},
+  ];
+  const grid = document.getElementById('geoGrid');
+  const summary = document.getElementById('geoSummary');
+  let gh = '', sh = '';
+  geos.forEach(g => {
+    gh += `<div style="background:var(--n);border-radius:7px;padding:10px 12px;border:1px solid var(--b)">
+      <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:4px">
+        <div style="font-size:14px;font-weight:700">${g.st}</div>
+        <div style="font-size:10px;color:var(--t3)">${g.pct}%</div>
+      </div>
+      <div style="font-size:10px;color:var(--t2)">${g.proj} proj / ${g.mw} MW</div>
+      <div style="font-size:12px;font-weight:700;color:var(--y);margin-top:4px">${g.rev}</div>
+    </div>`;
+    sh += `<div class="detail-row"><span>${g.st} (${g.proj} projects, ${g.mw} MW)</span><strong>${g.rev}</strong></div>`;
+  });
+  if(grid) grid.innerHTML = gh;
+  if(summary) summary.innerHTML = sh;
+}
+
+// ============ DEVELOPER RATINGS ============
+const devs = [
+  {name:'Solar Landscape',proj:37,markets:'NJ, IL, NY, PA',clients:'Faropoint, High Street, Plymouth, Alto',overall:9.0,
+   ratings:{communication:8,timeliness:8,quality:9,pricing:9,reliability:9,interconnection:9},
+   parent:'Independent',finance:'Long-term Owner',mw:205,bidsAll:49,bidsLTM:18,awardedLTM:9,winRate:'51%',
+   awarded:[
+    {project:'Faropoint NJ Portfolio (14 sites)',client:'Faropoint',mw:12.4,stage:'Accepted',rfp:'NJ Portfolio 1.0'},
+    {project:'Faropoint IL Portfolio (4 sites)',client:'Faropoint',mw:3.2,stage:'Accepted',rfp:'IL Portfolio'},
+    {project:'High Street Burlington NJ',client:'High Street',mw:2.1,stage:'Awarded',rfp:'Burlington NJ'},
+    {project:'High Street IL Portfolio',client:'High Street',mw:4.5,stage:'Awarded',rfp:'IL Portfolio'},
+    {project:'Plymouth REIT 1717 Harvester IL',client:'Plymouth REIT',mw:3.2,stage:'NTP',rfp:'Plymouth IL'},
+    {project:'Alto NJ',client:'Alto',mw:1.0,stage:'Awarded',rfp:'Alto NJ'},
+   ]},
+  {name:'Dimension RE LLC',proj:9,markets:'CA, IL, NJ, NY, OH',clients:'OSC, High Street',overall:10.0,
+   ratings:{communication:10,timeliness:9,quality:10,pricing:9,reliability:10,interconnection:9},
+   parent:'Partners Group (PE)',finance:'Long-term Owner',mw:368,bidsAll:19,bidsLTM:12,awardedLTM:5,winRate:'42%',
+   awarded:[
+    {project:'OSC Midcities MD',client:'Bain / OSC',mw:1.8,stage:'Accepted',rfp:'OSC MD'},
+    {project:'OSC Murray Hill Pkwy',client:'Bain / OSC',mw:1.2,stage:'Accepted',rfp:'OSC NJ'},
+    {project:'High Street NJ',client:'High Street',mw:2.5,stage:'Awarded',rfp:'High Street NJ'},
+    {project:'High Street IL',client:'High Street',mw:3.8,stage:'Awarded',rfp:'High Street IL'},
+   ]},
+  {name:'Pivot Energy',proj:6,markets:'IL, MD, CO',clients:'Plymouth, Turnbridge, Realterm',overall:10.0,
+   ratings:{communication:9,timeliness:9,quality:10,pricing:9,reliability:10,interconnection:10},
+   parent:'Energy Capital Partners / JLC',finance:'Long-term Owner',mw:360,bidsAll:32,bidsLTM:11,awardedLTM:6,winRate:'44%',
+   awarded:[
+    {project:'Plymouth REIT IL (3 sites)',client:'Plymouth REIT',mw:5.5,stage:'Option/Lease',rfp:'Plymouth IL'},
+    {project:'Turnbridge NCBP MD',client:'Turnbridge',mw:2.8,stage:'Awarded',rfp:'Turnbridge MD'},
+    {project:'Realterm Airports ORD IL',client:'Realterm',mw:1.5,stage:'Accepted',rfp:'Realterm IL'},
+   ]},
+  {name:'Pfister Energy',proj:7,markets:'NJ, NY, MA',clients:'General A&E, SEPAC',overall:10.0,
+   ratings:{communication:10,timeliness:9,quality:10,pricing:8,reliability:9,interconnection:9},
+   parent:'Independent',finance:'Flip Projects',mw:100,bidsAll:28,bidsLTM:10,awardedLTM:5,winRate:'43%',
+   awarded:[
+    {project:'General A&E NJ',client:'General A&E',mw:1.2,stage:'NTP',rfp:'A&E NJ'},
+    {project:'SEPAC NJ',client:'SEPAC',mw:0.8,stage:'Accepted',rfp:'SEPAC NJ'},
+   ]},
+  {name:'Advanced Solar Projects',proj:4,markets:'NJ, NY',clients:'Faropoint, CCG',overall:9.0,
+   ratings:{communication:9,timeliness:8,quality:9,pricing:9,reliability:9,interconnection:8},
+   parent:'Independent',finance:'Long-term Owner',mw:45,bidsAll:38,bidsLTM:3,awardedLTM:1,winRate:'53%',
+   awarded:[
+    {project:'CCG Towaco NJ',client:'CCG',mw:0.6,stage:'NTP',rfp:'CCG NJ'},
+    {project:'Faropoint NJ (early portfolio)',client:'Faropoint',mw:2.1,stage:'PTO',rfp:'Faropoint NJ'},
+   ]},
+  {name:'Plankton',proj:5,markets:'NJ, NY',clients:'GTIS, Bain, Sterling',overall:9.0,
+   ratings:{communication:9,timeliness:8,quality:9,pricing:9,reliability:9,interconnection:8},
+   parent:'Independent',finance:'Long-term Owner',mw:0,bidsAll:35,bidsLTM:7,awardedLTM:3,winRate:'40%',
+   awarded:[
+    {project:'GTIS Hackensack',client:'GTIS',mw:1.5,stage:'Awarded',rfp:'GTIS NJ'},
+    {project:'Bain 26 Cook St',client:'Bain',mw:0.8,stage:'Accepted',rfp:'Bain NJ'},
+    {project:'Sterling Organization NY',client:'Sterling',mw:1.1,stage:'Awarded',rfp:'Sterling NY'},
+   ]},
+  {name:'Evergreen Energy',proj:7,markets:'NJ, CT',clients:'Rosengarten, Linden, Tay',overall:8.5,
+   ratings:{communication:8,timeliness:8,quality:9,pricing:8,reliability:8,interconnection:8},
+   parent:'Independent',finance:'Long-term Owner',mw:0,bidsAll:27,bidsLTM:6,awardedLTM:2,winRate:'59%',
+   awarded:[
+    {project:'Linden Warehouse NJ',client:'Linden Warehouse',mw:1.2,stage:'NTP',rfp:'Linden NJ'},
+    {project:'Rosengarten CT',client:'Rosengarten',mw:0.9,stage:'Awarded',rfp:'Rosengarten CT'},
+   ]},
+  {name:'DSD Renewables',proj:15,markets:'IL, ME',clients:'Plymouth REIT',overall:6.0,
+   ratings:{communication:5,timeliness:4,quality:7,pricing:7,reliability:6,interconnection:5},
+   parent:'DS New Energy (Korean)',finance:'Long-term Owner',mw:200,bidsAll:34,bidsLTM:0,awardedLTM:0,winRate:'50%',
+   awarded:[
+    {project:'Plymouth REIT IL (5 sites)',client:'Plymouth REIT',mw:8.2,stage:'Option/Lease',rfp:'Plymouth IL'},
+    {project:'Faropoint IL (3 sites)',client:'Faropoint',mw:3.2,stage:'Accepted',rfp:'Faropoint IL'},
+   ]},
+];
+
+const ratingLabels = {communication:'Communication',timeliness:'Timeliness',quality:'Build Quality',pricing:'Pricing',reliability:'Reliability',interconnection:'Interconnection'};
+
+function ratingColor(v) { return v >= 9 ? 'var(--g)' : v >= 7 ? 'var(--y)' : 'var(--r)'; }
+
+function renderDevs() {
+  const el = document.getElementById('devCards');
+  let h = '';
+  devs.forEach((d,i) => {
+    const color = ratingColor(d.overall);
+    const did = 'dev-'+i;
+    const stageColor = s => s==='NTP'||s==='PTO'?'var(--g)':s==='Accepted'?'var(--g)':s.includes('Lease')?'var(--y)':s==='Awarded'?'var(--w)':'var(--bl)';
+    h += `<div class="dev-card">
+      <div class="expand-row" onclick="toggleExpand('${did}')" style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;cursor:pointer">
+        <div>
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+            <span class="expand-icon" id="icon-${did}" style="font-size:10px">&#9654;</span>
+            <span style="font-size:10px;color:var(--t4);font-weight:700">#${i+1}</span>
+            <span style="font-size:14px;font-weight:700;color:var(--t)">${d.name}</span>
+            <span style="font-size:10px;color:var(--t3)">${d.awarded.length} SK projects</span>
+            <span style="font-size:9px;color:var(--t4)">${d.parent||''}</span>
+          </div>
+          <div style="font-size:10px;color:var(--t2);margin-left:34px">${d.markets} / ${d.finance} / ${d.mw}MW developed / ${d.bidsAll} all-time bids (${d.winRate} win) / ${d.bidsLTM} LTM</div>
+        </div>
+        <div style="text-align:center;background:var(--n5);border:2px solid ${color};border-radius:10px;padding:8px 14px;min-width:60px">
+          <div style="font-size:20px;font-weight:800;color:${color};letter-spacing:-1px">${d.overall}</div>
+          <div style="font-size:8px;color:var(--t4);text-transform:uppercase;letter-spacing:.5px">/10</div>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:4px">
+        ${Object.entries(d.ratings).map(([k,v]) => `
+          <div style="display:flex;align-items:center;gap:6px">
+            <div style="font-size:9px;color:var(--t3);width:55px;flex-shrink:0">${ratingLabels[k]||k}</div>
+            <div class="rating-bar-wrap"><div class="rating-bar" style="width:${v/10*100}%;background:${ratingColor(v)}"></div></div>
+            <div style="font-size:10px;font-weight:700;color:${ratingColor(v)};width:22px;text-align:right">${v}</div>
+          </div>
+        `).join('')}
+      </div>
+      <div class="rfp-group" id="${did}">
+        <div style="font-size:9px;color:var(--t4);font-weight:700;text-transform:uppercase;letter-spacing:.5px;padding:10px 0 6px;border-top:1px solid var(--b);margin-top:8px">Awarded Projects</div>
+        ${d.awarded.map(a => `
+          <div style="display:grid;grid-template-columns:1fr auto auto auto;gap:8px;padding:5px 8px;background:var(--n5);border-radius:4px;border:1px solid var(--b);margin-bottom:2px;font-size:10px;align-items:center">
+            <div><span style="font-weight:600;color:var(--t)">${a.project}</span> <span style="color:var(--t3)">/ ${a.client}</span></div>
+            <div style="color:var(--t2)">${a.rfp}</div>
+            <div style="font-weight:600;color:${stageColor(a.stage)};font-size:9px;padding:2px 6px;border-radius:10px;background:rgba(255,255,255,0.04)">${a.stage}</div>
+            <div style="color:var(--t2)">${a.mw} MW</div>
+          </div>
+        `).join('')}
+      </div>
+    </div>`;
+  });
+  h += '<div style="font-size:10px;color:var(--t4);font-style:italic;padding:8px 0">Click vendor card to see awarded projects. Ratings are PD-entered placeholders.</div>';
+  el.innerHTML = h;
+}
+
+// ============ PRICING TABLE ============
+const pricingData = [
+  {m:'CA - North',er:0.19,ppa:0.09,lease:0.85,tk:2.10,s1:2.80,s2:2.60,s3:2.40,s4:2.25},
+  {m:'CA - South',er:0.14,ppa:0.08,lease:0.90,tk:2.15,s1:2.80,s2:2.60,s3:2.45,s4:2.30},
+  {m:'CA - LADWP',er:0,ppa:0,lease:0.95,tk:1.80,s1:3.00,s2:2.80,s3:2.60,s4:2.45},
+  {m:'CO',er:0.08,ppa:0.08,lease:0.55,tk:1.85,s1:2.80,s2:2.35,s3:2.10,s4:1.95},
+  {m:'CT',er:0,ppa:0,lease:0.70,tk:1.85,s1:2.85,s2:2.35,s3:2.20,s4:2.00},
+  {m:'DC',er:0.12,ppa:0.10,lease:1.25,tk:1.85,s1:2.90,s2:2.55,s3:2.30,s4:2.10},
+  {m:'FL',er:0.08,ppa:0.08,lease:0.50,tk:1.70,s1:2.85,s2:2.40,s3:2.05,s4:1.85},
+  {m:'IL',er:0.09,ppa:0.07,lease:0.60,tk:1.90,s1:2.85,s2:2.45,s3:2.25,s4:2.10},
+  {m:'MA - Eversource E',er:0,ppa:0.09,lease:0.75,tk:1.85,s1:2.85,s2:2.40,s3:2.25,s4:2.00},
+  {m:'MA - Eversource W',er:0,ppa:0.12,lease:0.70,tk:1.85,s1:2.85,s2:2.40,s3:2.25,s4:2.00},
+  {m:'MA - Nat Grid',er:0,ppa:0.12,lease:0.75,tk:1.85,s1:2.85,s2:2.40,s3:2.25,s4:2.00},
+  {m:'MD',er:0.111,ppa:0.08,lease:0.65,tk:1.85,s1:2.85,s2:2.25,s3:2.20,s4:2.00},
+  {m:'ME',er:0.147,ppa:0.12,lease:0.55,tk:1.85,s1:2.80,s2:2.35,s3:2.10,s4:1.95},
+  {m:'NJ - JCP&L',er:0.14,ppa:0.09,lease:0.80,tk:1.80,s1:2.80,s2:2.40,s3:2.20,s4:1.90},
+  {m:'NJ - PSE&G',er:0.12,ppa:0.08,lease:0.85,tk:1.80,s1:2.80,s2:2.40,s3:2.20,s4:1.90},
+  {m:'NJ - Rockland',er:0.12,ppa:0.08,lease:0.75,tk:1.80,s1:2.80,s2:2.40,s3:2.20,s4:1.90},
+  {m:'NJ - ACE',er:0.12,ppa:0.08,lease:0.70,tk:1.80,s1:2.80,s2:2.40,s3:2.20,s4:1.90},
+  {m:'NY - Long Island',er:0.14,ppa:0.11,lease:1.10,tk:2.30,s1:2.80,s2:2.40,s3:2.10,s4:1.95},
+  {m:'NY - NYC',er:0.165,ppa:0.08,lease:1.25,tk:1.70,s1:2.90,s2:2.60,s3:2.50,s4:2.40},
+  {m:'NY - Upstate',er:0.10,ppa:0.09,lease:0.55,tk:1.95,s1:2.80,s2:2.30,s3:2.05,s4:1.85},
+  {m:'NY - Westchester',er:0.15,ppa:0.08,lease:1.00,tk:1.70,s1:2.90,s2:2.45,s3:2.25,s4:2.00},
+  {m:'PA',er:0.11,ppa:0.07,lease:0.55,tk:1.70,s1:2.80,s2:2.30,s3:2.05,s4:1.85},
+  {m:'RI',er:0,ppa:0,lease:0.65,tk:1.85,s1:2.85,s2:2.40,s3:2.20,s4:2.00},
+  {m:'VA',er:0.075,ppa:0.07,lease:0.50,tk:2.10,s1:2.80,s2:2.30,s3:2.05,s4:1.85},
+];
+
+let currentMapMetric = 'ppa';
+
+function setMapMetric(el, metric) {
+  currentMapMetric = metric;
+  el.parentElement.querySelectorAll('.proj-type-btn').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+  const labels = {ppa:'PPA Rate',er:'Energy Rate',tk:'Turnkey $/W',lease:'Lease Rate',s1:'<100kW TK',s2:'100-250kW TK',s3:'250-500kW TK',s4:'500-1MW TK'};
+  document.getElementById('mapBadge').textContent = labels[metric];
+  renderPricingMap();
+}
+
+function getMetricVal(p, metric) {
+  return p[metric] || 0;
+}
+
+function fmtMetric(v, metric) {
+  if(!v) return '--';
+  if(['ppa','er'].includes(metric)) return '$'+v.toFixed(2);
+  if(metric==='lease') return '$'+v.toFixed(2);
+  return '$'+v.toFixed(2);
+}
+
+function metricColor(v, metric) {
+  if(!v) return 'var(--t4)';
+  if(['ppa','er'].includes(metric)) return v >= 0.10 ? 'var(--g)' : v >= 0.07 ? 'var(--y)' : 'var(--t2)';
+  if(metric==='lease') return v >= 0.90 ? 'var(--g)' : v >= 0.60 ? 'var(--y)' : 'var(--t2)';
+  return v <= 1.85 ? 'var(--g)' : v <= 2.20 ? 'var(--y)' : 'var(--w)';
+}
+
+// Aggregate state-level values for the map
+function getStateAvg(statePrefix, metric) {
+  const matches = pricingData.filter(p => p.m.startsWith(statePrefix));
+  if(!matches.length) return 0;
+  const vals = matches.map(p => getMetricVal(p, metric)).filter(v => v > 0);
+  if(!vals.length) return 0;
+  return vals.reduce((a,b) => a+b, 0) / vals.length;
+}
+
+const mapStates = [
+  {st:'CA',x:30,y:120,w:65,h:65,core:true},
+  {st:'CO',x:120,y:165,w:55,h:36,core:false},
+  {st:'CT',x:428,y:60,w:44,h:32,core:false},
+  {st:'DC',x:422,y:244,w:34,h:28,core:false},
+  {st:'FL',x:350,y:320,w:55,h:34,core:false},
+  {st:'IL',x:220,y:150,w:60,h:48,core:true},
+  {st:'MA',x:380,y:60,w:44,h:32,core:false},
+  {st:'MD',x:370,y:240,w:50,h:36,core:false},
+  {st:'ME',x:428,y:96,w:44,h:32,core:false},
+  {st:'NJ',x:400,y:188,w:70,h:48,core:true},
+  {st:'NY',x:350,y:135,w:70,h:48,core:true},
+  {st:'PA',x:330,y:195,w:60,h:38,core:false},
+  {st:'RI',x:380,y:96,w:44,h:32,core:false},
+  {st:'VA',x:350,y:280,w:55,h:34,core:false},
+];
+
+function renderPricingMap() {
+  const m = currentMapMetric;
+  let svg = '<svg viewBox="0 0 600 380" width="100%" style="display:block;border-radius:8px" xmlns="http://www.w3.org/2000/svg">';
+  svg += '<rect width="600" height="380" fill="var(--n5)" rx="8"/>';
+  mapStates.forEach(s => {
+    const avg = getStateAvg(s.st, m);
+    const color = metricColor(avg, m);
+    const valStr = fmtMetric(avg, m);
+    const strokeW = s.core ? 2 : 1;
+    const fillOpacity = s.core ? 0.15 : 0.08;
+    svg += '<g transform="translate('+s.x+','+s.y+')">';
+    svg += '<rect x="0" y="0" width="'+s.w+'" height="'+s.h+'" rx="'+(s.core?5:4)+'" fill="rgba(251,215,7,'+fillOpacity+')" stroke="'+color+'" stroke-width="'+strokeW+'"/>';
+    const cx = s.w/2, cy1 = s.h*0.4, cy2 = s.h*0.7;
+    svg += '<text x="'+cx+'" y="'+cy1+'" fill="'+color+'" font-size="'+(s.core?11:9)+'" font-weight="'+(s.core?800:700)+'" text-anchor="middle" font-family="var(--font)">'+s.st+'</text>';
+    svg += '<text x="'+cx+'" y="'+cy2+'" fill="var(--t2)" font-size="'+(s.core?8:7)+'" text-anchor="middle" font-family="var(--font)">'+valStr+'</text>';
+    svg += '</g>';
+  });
+  svg += '</svg>';
+  document.getElementById('pricingMapContainer').innerHTML = svg;
+}
+
+function renderPricing() {
+  const tbody = document.getElementById('pricingTableBody');
+  if(!tbody) return;
+  const core = ['NJ','IL','MA','NY','MD','CA'];
+  let h = '';
+  pricingData.forEach(p => {
+    const isCore = core.some(c => p.m.startsWith(c));
+    h += `<tr>
+      <td${isCore?' style="color:var(--y)"':''}>${p.m}</td>
+      <td class="num${p.er>0.12?' highlight':''}">${p.er?'$'+p.er.toFixed(3):'--'}</td>
+      <td class="num${p.ppa>=0.10?' highlight':''}">${p.ppa?'$'+p.ppa.toFixed(2):'--'}</td>
+      <td class="num">${p.lease?'$'+p.lease.toFixed(2):'--'}</td>
+      <td class="num">$${p.tk.toFixed(2)}</td>
+      <td class="num">$${p.s1.toFixed(2)}</td>
+      <td class="num">$${p.s2.toFixed(2)}</td>
+      <td class="num">$${p.s3.toFixed(2)}</td>
+      <td class="num">$${p.s4.toFixed(2)}</td>
+    </tr>`;
+  });
+  tbody.innerHTML = h;
+  renderPricingMap();
+}
+
+renderClientTable();
+renderFunnel('homeFunnel');
+renderFunnel('fullFunnel');
+renderPipelineClients();
+renderGeo();
+renderDevs();
+renderPricing();
+renderActiveRfps();
+renderVendorProfiles();
+
+// showMktTab removed - marketplace now uses sections not tabs
+
+function showVendorTab(el,tabId){
+  document.querySelectorAll('.tab').forEach(t=>{if(t.parentElement===el.parentElement)t.classList.remove('active')});
+  el.classList.add('active');
+  ['vendorCards','vendorProfiles','vendorBidStats'].forEach(id=>{const e=document.getElementById(id);if(e)e.style.display=id===tabId?'block':'none';});
+}
+
+function renderClientPortal() {
+  const sel = document.getElementById('clientPortalSelect').value;
+  const container = document.getElementById('clientPortalContent');
+  const summary = document.getElementById('cpSummary');
+
+  const clientData = {
+    'Faropoint': {
+      developers: [
+        {name:'Brightcore', items:[
+          {addr:'19 Industrial Avenue',city:'Mahwah',state:'NJ',skReview:'Approved',clientApproval:'Approved',roofAge:2021,leaseRate:30799,roofSF:52904,kw:504.9},
+          {addr:'1 Pearl Court',city:'Allendale',state:'NJ',skReview:'Approved',clientApproval:'Approved',roofAge:2026,leaseRate:18385,roofSF:47579,kw:301.4},
+          {addr:'2 Pearl Court',city:'Allendale',state:'NJ',skReview:'Approved',clientApproval:'Approved',roofAge:2026,leaseRate:12682,roofSF:39170,kw:207.9},
+          {addr:'3 Pearl Court',city:'Allendale',state:'NJ',skReview:'Approved',clientApproval:'Approved',roofAge:2025,leaseRate:18050,roofSF:41500,kw:295.9},
+          {addr:'5 Pearl Court',city:'Allendale',state:'NJ',skReview:'Approved',clientApproval:'Approved',roofAge:2025,leaseRate:16507,roofSF:37405,kw:270.6},
+          {addr:'6 Pearl Court',city:'Allendale',state:'NJ',skReview:'Approved',clientApproval:'Approved',roofAge:2025,leaseRate:27779,roofSF:99919,kw:455.4},
+          {addr:'7 Pearl Court',city:'Allendale',state:'NJ',skReview:'Approved',clientApproval:'Approved',roofAge:2028,leaseRate:18587,roofSF:44290,kw:304.7},
+          {addr:'16 McKee Drive',city:'Mahwah',state:'NJ',skReview:'Approved',clientApproval:'Under Review',roofAge:2028,leaseRate:73244,roofSF:113103,kw:1062},
+          {addr:'70-82 McKee Drive',city:'Mahwah',state:'NJ',skReview:'Approved',clientApproval:'Approved',roofAge:2019,leaseRate:96676,roofSF:170000,kw:1584.86},
+          {addr:'91 McKee Drive',city:'Mahwah',state:'NJ',skReview:'Approved',clientApproval:'Rejected',roofAge:2015,leaseRate:81744,roofSF:121896,kw:0},
+          {addr:'59 Route 17',city:'Allendale',state:'NJ',skReview:'Approved',clientApproval:'Rejected',roofAge:2026,leaseRate:30128,roofSF:60000,kw:493.9},
+          {addr:'200 Rike Drive',city:'Millstone',state:'NJ',skReview:'Approved',clientApproval:'Approved',roofAge:2026,leaseRate:17741,roofSF:63000,kw:554.4},
+          {addr:'128 Bauer Dr.',city:'Oakland',state:'NJ',skReview:'Approved',clientApproval:'Approved',roofAge:2003,leaseRate:19924,roofSF:42182,kw:316.25},
+          {addr:'204 Evans Way',city:'Branchburg',state:'NJ',skReview:'Approved',clientApproval:'Approved',roofAge:1999,leaseRate:10379,roofSF:34500,kw:305.25},
+        ]},
+        {name:'Solar Landscape', items:[
+          {addr:'100 Commerce Way',city:'Edison',state:'NJ',skReview:'Approved',clientApproval:'Approved',roofAge:2020,leaseRate:22500,roofSF:55000,kw:420},
+          {addr:'250 Distribution Pkwy',city:'Piscataway',state:'NJ',skReview:'Approved',clientApproval:'Approved',roofAge:2018,leaseRate:18900,roofSF:48000,kw:385},
+          {addr:'45 Logistics Blvd',city:'Somerset',state:'NJ',skReview:'Approved',clientApproval:'Approved',roofAge:2022,leaseRate:31200,roofSF:72000,kw:620},
+          {addr:'800 Cranbury Rd',city:'Monroe',state:'NJ',skReview:'Approved',clientApproval:'Under Review',roofAge:2024,leaseRate:45000,roofSF:95000,kw:890},
+          {addr:'12 Park Ave',city:'Woodbridge',state:'NJ',skReview:'Approved',clientApproval:'Approved',roofAge:2016,leaseRate:14200,roofSF:38000,kw:275},
+        ]},
+      ]
+    },
+    'High Street': {
+      developers: [
+        {name:'Solar Landscape', items:[
+          {addr:'900 Richards Run',city:'Burlington',state:'NJ',skReview:'Approved',clientApproval:'Approved',roofAge:2020,leaseRate:28500,roofSF:65000,kw:580},
+          {addr:'1200 Industrial Dr',city:'Burlington',state:'NJ',skReview:'Approved',clientApproval:'Approved',roofAge:2018,leaseRate:22000,roofSF:52000,kw:440},
+        ]},
+        {name:'Dimension', items:[
+          {addr:'500 Archer Ave',city:'Chicago',state:'IL',skReview:'Approved',clientApproval:'Approved',roofAge:2015,leaseRate:19000,roofSF:85000,kw:720},
+          {addr:'1800 S Halsted',city:'Chicago',state:'IL',skReview:'Approved',clientApproval:'Under Review',roofAge:2012,leaseRate:15500,roofSF:62000,kw:510},
+          {addr:'3200 W 47th St',city:'Chicago',state:'IL',skReview:'Under Review',clientApproval:'Pending',roofAge:2019,leaseRate:21000,roofSF:78000,kw:650},
+        ]},
+      ]
+    },
+    'Plymouth': {
+      developers: [
+        {name:'DSD Renewables', items:[
+          {addr:'1717 Harvester Rd',city:'West Chicago',state:'IL',skReview:'Approved',clientApproval:'Approved',roofAge:2014,leaseRate:18200,roofSF:92000,kw:780},
+          {addr:'2200 Industrial Pkwy',city:'Naperville',state:'IL',skReview:'Approved',clientApproval:'Approved',roofAge:2017,leaseRate:14800,roofSF:58000,kw:480},
+          {addr:'900 Commerce Dr',city:'Elgin',state:'IL',skReview:'Approved',clientApproval:'Rejected',roofAge:2008,leaseRate:12500,roofSF:45000,kw:0},
+        ]},
+      ]
+    },
+    'Turnbridge': {
+      developers: [
+        {name:'Pivot Energy', items:[
+          {addr:'1000 Jersey Ave',city:'New Brunswick',state:'NJ',skReview:'Approved',clientApproval:'Approved',roofAge:2020,leaseRate:42000,roofSF:110000,kw:2800},
+          {addr:'169 Pulaski St',city:'New Brunswick',state:'NJ',skReview:'Approved',clientApproval:'Under Review',roofAge:2022,leaseRate:38500,roofSF:95000,kw:2700},
+        ]},
+      ]
+    },
+    'Bain': {
+      developers: [
+        {name:'Revision Energy', items:[
+          {addr:'6801 Mid Cities Ave',city:'Beltsville',state:'MD',skReview:'Approved',clientApproval:'Approved',roofAge:2016,leaseRate:24000,roofSF:58000,kw:480},
+          {addr:'21 Parker Drive',city:'Chester',state:'MA',skReview:'Approved',clientApproval:'Approved',roofAge:2019,leaseRate:18500,roofSF:42000,kw:350},
+          {addr:'85 Main St',city:'Forestville',state:'MD',skReview:'Approved',clientApproval:'Under Review',roofAge:2021,leaseRate:16200,roofSF:38000,kw:310},
+        ]},
+      ]
+    },
+  };
+
+  const data = clientData[sel];
+  if(!data) { container.innerHTML = '<div style="color:var(--t3);padding:40px;text-align:center">No data available for this client</div>'; return; }
+
+  // Compute summary
+  let totalItems = 0, totalSF = 0, totalKW = 0, totalLease = 0, approvedCount = 0, reviewCount = 0, rejectedCount = 0;
+  data.developers.forEach(d => d.items.forEach(item => {
+    totalItems++;
+    totalSF += item.roofSF;
+    totalKW += item.kw;
+    totalLease += item.leaseRate;
+    if(item.clientApproval === 'Approved') approvedCount++;
+    else if(item.clientApproval === 'Rejected') rejectedCount++;
+    else reviewCount++;
+  }));
+
+  summary.innerHTML = `
+    <div style="text-align:right"><div style="font-size:9px;color:var(--t4);text-transform:uppercase;letter-spacing:.5px">Properties</div><div style="font-size:16px;font-weight:800;color:var(--t)">${totalItems}</div></div>
+    <div style="text-align:right"><div style="font-size:9px;color:var(--t4);text-transform:uppercase;letter-spacing:.5px">Sum Lease Rate</div><div style="font-size:16px;font-weight:800;color:var(--y)">$${totalLease.toLocaleString()}</div></div>
+    <div style="text-align:right"><div style="font-size:9px;color:var(--t4);text-transform:uppercase;letter-spacing:.5px">Total SF</div><div style="font-size:16px;font-weight:800;color:var(--t)">${totalSF.toLocaleString()}</div></div>
+    <div style="text-align:right"><div style="font-size:9px;color:var(--t4);text-transform:uppercase;letter-spacing:.5px">System kW</div><div style="font-size:16px;font-weight:800;color:var(--t)">${totalKW.toLocaleString(undefined,{maximumFractionDigits:1})}</div></div>
+    <div style="text-align:right"><div style="font-size:9px;color:var(--t4);text-transform:uppercase;letter-spacing:.5px">MW</div><div style="font-size:16px;font-weight:800;color:var(--y)">${(totalKW/1000).toFixed(1)}</div></div>
+    <div style="text-align:right"><div style="font-size:9px;color:var(--t4);text-transform:uppercase;letter-spacing:.5px">Approved</div><div style="font-size:16px;font-weight:800;color:var(--g)">${approvedCount}</div></div>
+    <div style="text-align:right"><div style="font-size:9px;color:var(--t4);text-transform:uppercase;letter-spacing:.5px">Review</div><div style="font-size:16px;font-weight:800;color:var(--w)">${reviewCount}</div></div>
+    ${rejectedCount > 0 ? `<div style="text-align:right"><div style="font-size:9px;color:var(--t4);text-transform:uppercase;letter-spacing:.5px">Rejected</div><div style="font-size:16px;font-weight:800;color:var(--r)">${rejectedCount}</div></div>` : ''}
+  `;
+
+  // Render developer groups
+  let h = '';
+  data.developers.forEach((dev, di) => {
+    const devSF = dev.items.reduce((a,b) => a+b.roofSF, 0);
+    const devKW = dev.items.reduce((a,b) => a+b.kw, 0);
+    h += `<div class="mod" style="margin-bottom:12px">
+      <div class="mod-h">
+        <div class="mod-t" style="font-size:13px">${dev.name}</div>
+        <div style="display:flex;gap:12px;font-size:10px;color:var(--t2)">
+          <span>${dev.items.length} properties</span>
+          <span>${devSF.toLocaleString()} SF</span>
+          <span style="color:var(--y)">${devKW.toLocaleString(undefined,{maximumFractionDigits:1})} kW</span>
+        </div>
+      </div>
+      <div style="overflow-x:auto">
+      <table class="pricing-tbl" style="min-width:900px">
+      <thead><tr>
+        <th style="min-width:160px">Property</th>
+        <th>City</th>
+        <th>State</th>
+        <th style="text-align:center">SolarKal Review</th>
+        <th style="text-align:center">Client Approval</th>
+        <th class="num">Roof Age</th>
+        <th class="num">Lease Rate ($)</th>
+        <th class="num">Roof Size (SF)</th>
+        <th class="num">System (kW)</th>
+      </tr></thead>
+      <tbody>`;
+
+    dev.items.forEach(item => {
+      const skColor = item.skReview === 'Approved' ? 'var(--g)' : item.skReview === 'Under Review' ? 'var(--w)' : 'var(--t2)';
+      const caColor = item.clientApproval === 'Approved' ? 'var(--g)' : item.clientApproval === 'Rejected' ? 'var(--r)' : item.clientApproval === 'Under Review' ? 'var(--w)' : 'var(--t3)';
+      const skBg = item.skReview === 'Approved' ? 'rgba(34,201,138,0.12)' : item.skReview === 'Under Review' ? 'rgba(245,166,35,0.12)' : 'transparent';
+      const caBg = item.clientApproval === 'Approved' ? 'rgba(34,201,138,0.12)' : item.clientApproval === 'Rejected' ? 'rgba(240,92,92,0.12)' : item.clientApproval === 'Under Review' ? 'rgba(245,166,35,0.12)' : 'transparent';
+
+      h += `<tr>
+        <td style="font-weight:600">${item.addr}</td>
+        <td>${item.city}</td>
+        <td>${item.state}</td>
+        <td style="text-align:center"><span style="display:inline-block;padding:2px 10px;border-radius:10px;font-size:10px;font-weight:600;color:${skColor};background:${skBg}">${item.skReview}</span></td>
+        <td style="text-align:center"><span style="display:inline-block;padding:2px 10px;border-radius:10px;font-size:10px;font-weight:600;color:${caColor};background:${caBg}">${item.clientApproval}</span></td>
+        <td class="num">${item.roofAge}</td>
+        <td class="num">$${item.leaseRate.toLocaleString()}</td>
+        <td class="num">${item.roofSF.toLocaleString()}</td>
+        <td class="num" style="color:${item.kw > 0 ? 'var(--t)' : 'var(--t4)'}">${item.kw > 0 ? item.kw.toLocaleString(undefined,{maximumFractionDigits:1}) : '--'}</td>
+      </tr>`;
+    });
+
+    h += `</tbody>
+      <tfoot><tr style="border-top:1px solid var(--b)">
+        <td colspan="6" style="font-weight:700;color:var(--t2);font-size:10px;text-transform:uppercase">Subtotal</td>
+        <td class="num" style="font-weight:700">$${dev.items.reduce((a,b)=>a+b.leaseRate,0).toLocaleString()}</td>
+        <td class="num" style="font-weight:700">${devSF.toLocaleString()}</td>
+        <td class="num" style="font-weight:700;color:var(--y)">${devKW.toLocaleString(undefined,{maximumFractionDigits:1})}</td>
+      </tr></tfoot>
+      </table></div>
+    </div>`;
+  });
+
+  // Grand total
+  h += `<div style="display:flex;justify-content:flex-end;gap:24px;padding:12px 10px;font-size:11px;font-weight:700;color:var(--t)">
+    <span>Total Lease: $${totalLease.toLocaleString()}</span>
+    <span>Total SF: ${totalSF.toLocaleString()}</span>
+    <span style="color:var(--y)">Total kW: ${totalKW.toLocaleString(undefined,{maximumFractionDigits:1})}</span>
+  </div>`;
+
+  container.innerHTML = h;
+}
+
+
+// ============ BID STATS TABLE ============
+const bidStatsData = [
+  {vendor:'Solar Landscape',rating:9,bidsAll:49,winsAll:25,winRate:51,bidsLTM:18,awardedLTM:9,mw:205,finance:'Long-term Owner',skProj:'Faropoint, High Street, Plymouth'},
+  {vendor:'Advanced Solar Projects',rating:9,bidsAll:38,winsAll:20,winRate:53,bidsLTM:3,awardedLTM:1,mw:45,finance:'Long-term Owner',skProj:'CCG, Faropoint'},
+  {vendor:'Plankton',rating:9,bidsAll:35,winsAll:14,winRate:40,bidsLTM:7,awardedLTM:3,mw:0,finance:'Long-term Owner',skProj:'GTIS, Bain, Sterling'},
+  {vendor:'DSD Renewables',rating:6,bidsAll:34,winsAll:17,winRate:50,bidsLTM:0,awardedLTM:0,mw:200,finance:'Long-term Owner',skProj:'Plymouth, Faropoint'},
+  {vendor:'Pivot Energy',rating:10,bidsAll:32,winsAll:14,winRate:44,bidsLTM:11,awardedLTM:6,mw:360,finance:'Long-term Owner',skProj:'Plymouth, Turnbridge, Realterm'},
+  {vendor:'Pfister Energy',rating:10,bidsAll:28,winsAll:12,winRate:43,bidsLTM:10,awardedLTM:5,mw:100,finance:'Flip Projects',skProj:'General A&E, SEPAC'},
+  {vendor:'Evergreen Energy',rating:8.5,bidsAll:27,winsAll:16,winRate:59,bidsLTM:6,awardedLTM:2,mw:0,finance:'Long-term Owner',skProj:'Linden, Rosengarten'},
+  {vendor:'Accord Power',rating:9,bidsAll:26,winsAll:7,winRate:27,bidsLTM:2,awardedLTM:1,mw:20,finance:'Unclear',skProj:'Veris Residential'},
+  {vendor:'Power Flex',rating:7,bidsAll:24,winsAll:9,winRate:38,bidsLTM:1,awardedLTM:0,mw:500,finance:'Long-term Owner',skProj:'--'},
+  {vendor:'EDPR NA',rating:10,bidsAll:22,winsAll:9,winRate:41,bidsLTM:3,awardedLTM:1,mw:0,finance:'Long-term Owner',skProj:'Realterm IL'},
+  {vendor:'Greenskies',rating:10,bidsAll:20,winsAll:5,winRate:25,bidsLTM:2,awardedLTM:1,mw:292,finance:'Long-term Owner',skProj:'GTIS, Adelphi'},
+  {vendor:'Dimension RE',rating:10,bidsAll:19,winsAll:8,winRate:42,bidsLTM:12,awardedLTM:5,mw:368,finance:'Long-term Owner',skProj:'OSC, High Street'},
+  {vendor:'Altus Power',rating:10,bidsAll:18,winsAll:7,winRate:39,bidsLTM:5,awardedLTM:2,mw:250,finance:'Long-term Owner',skProj:'--'},
+  {vendor:'Brightcore Energy',rating:9,bidsAll:17,winsAll:9,winRate:53,bidsLTM:4,awardedLTM:2,mw:85,finance:'Long-term Owner',skProj:'Faropoint'},
+  {vendor:'Summit Ridge',rating:10,bidsAll:5,winsAll:3,winRate:60,bidsLTM:3,awardedLTM:2,mw:430,finance:'Long-term Owner',skProj:'Harborview Farms'},
+  {vendor:'SunRun / SunPower',rating:8,bidsAll:14,winsAll:5,winRate:36,bidsLTM:2,awardedLTM:1,mw:400,finance:'Long-term Owner',skProj:'--'},
+  {vendor:'Anza Renewables',rating:8,bidsAll:12,winsAll:4,winRate:33,bidsLTM:3,awardedLTM:1,mw:75,finance:'Long-term Owner',skProj:'RPT Realty'},
+  {vendor:'Solar Energy Systems',rating:10,bidsAll:11,winsAll:4,winRate:36,bidsLTM:2,awardedLTM:1,mw:0,finance:'Unclear',skProj:'Bergen Logistics'},
+  {vendor:'Revision Energy',rating:9,bidsAll:10,winsAll:4,winRate:40,bidsLTM:1,awardedLTM:0,mw:45,finance:'Strategic Partner',skProj:'OSC MD, B&D MA'},
+  {vendor:'Nexamp',rating:10,bidsAll:9,winsAll:3,winRate:33,bidsLTM:1,awardedLTM:1,mw:815,finance:'Long-term Owner',skProj:'--'},
+  {vendor:'Madison Energy',rating:10,bidsAll:5,winsAll:3,winRate:60,bidsLTM:5,awardedLTM:3,mw:250,finance:'Long-term Owner',skProj:'--'},
+  {vendor:'Scale Microgrids',rating:10,bidsAll:2,winsAll:1,winRate:50,bidsLTM:2,awardedLTM:1,mw:800,finance:'Long-term Owner',skProj:'--'},
+  {vendor:'TotalEnergies DG',rating:10,bidsAll:3,winsAll:2,winRate:67,bidsLTM:1,awardedLTM:1,mw:0,finance:'Long-term Owner',skProj:'--'},
+  {vendor:'Solar Technologies',rating:10,bidsAll:4,winsAll:2,winRate:50,bidsLTM:2,awardedLTM:1,mw:105,finance:'Unclear',skProj:'Federal Realty CA'},
+  {vendor:'Wunder Capital',rating:8,bidsAll:8,winsAll:3,winRate:38,bidsLTM:1,awardedLTM:0,mw:35,finance:'Flip Projects',skProj:'Greenberg Gibbons'},
+];
+
+let bidSortCol = 3, bidSortAsc = false;
+
+function renderBidStats() {
+  const sorted = [...bidStatsData].sort((a,b) => {
+    const keys = ['','vendor','rating','bidsAll','winsAll','winRate','bidsLTM','awardedLTM','mw','finance','skProj'];
+    const k = keys[bidSortCol];
+    if(typeof a[k] === 'string') return bidSortAsc ? a[k].localeCompare(b[k]) : b[k].localeCompare(a[k]);
+    return bidSortAsc ? a[k]-b[k] : b[k]-a[k];
+  });
+  const tbody = document.getElementById('bidStatsBody');
+  if(!tbody) return;
+  let h = '';
+  sorted.forEach((v,i) => {
+    const rc = v.rating >= 9 ? 'var(--g)' : v.rating >= 7 ? 'var(--y)' : 'var(--r)';
+    const wrc = v.winRate >= 50 ? 'var(--g)' : v.winRate >= 35 ? 'var(--y)' : 'var(--r)';
+    h += `<tr>
+      <td class="num">${i+1}</td>
+      <td style="font-weight:600">${v.vendor}</td>
+      <td class="num" style="color:${rc};font-weight:700">${v.rating}</td>
+      <td class="num" style="font-weight:700">${v.bidsAll}</td>
+      <td class="num" style="color:var(--g);font-weight:700">${v.winsAll}</td>
+      <td class="num" style="color:${wrc};font-weight:700">${v.winRate}%</td>
+      <td class="num">${v.bidsLTM}</td>
+      <td class="num">${v.awardedLTM}</td>
+      <td class="num">${v.mw || '--'}</td>
+      <td style="font-size:10px;color:var(--t2)">${v.finance}</td>
+      <td style="font-size:9px;color:var(--t3)">${v.skProj}</td>
+    </tr>`;
+  });
+  tbody.innerHTML = h;
+}
+
+function sortBidTable(col) {
+  if(bidSortCol === col) bidSortAsc = !bidSortAsc;
+  else { bidSortCol = col; bidSortAsc = false; }
+  renderBidStats();
+}
+
+renderBidStats();
+
+// ============ PORTFOLIO MAP (SVG-based interactive) ============
+function renderPortfolioMap() {
+  const tileW = 54, tileH = 42, gap = 4, padX = 30, padY = 20;
+  const sites = [
+    // NJ cluster
+    {lat:40.74,lng:-74.17,city:'Edison',state:'NJ',kw:820,stage:'Accepted',client:'Faropoint'},
+    {lat:40.72,lng:-74.25,city:'Piscataway',state:'NJ',kw:650,stage:'Accepted',client:'Faropoint'},
+    {lat:40.56,lng:-74.53,city:'Somerset',state:'NJ',kw:1100,stage:'NTP',client:'Faropoint'},
+    {lat:41.04,lng:-74.13,city:'Mahwah',state:'NJ',kw:1584,stage:'Accepted',client:'Faropoint'},
+    {lat:41.03,lng:-74.14,city:'Allendale',state:'NJ',kw:455,stage:'Accepted',client:'Faropoint'},
+    {lat:40.48,lng:-74.42,city:'New Brunswick',state:'NJ',kw:2800,stage:'Lease',client:'Turnbridge'},
+    {lat:40.36,lng:-74.28,city:'Monroe',state:'NJ',kw:1200,stage:'Accepted',client:'Faropoint'},
+    {lat:40.22,lng:-74.74,city:'Burlington',state:'NJ',kw:580,stage:'Awarded',client:'High Street'},
+    {lat:40.45,lng:-74.39,city:'Millstone',state:'NJ',kw:554,stage:'Accepted',client:'Faropoint'},
+    {lat:40.65,lng:-74.30,city:'Woodbridge',state:'NJ',kw:275,stage:'PTO',client:'Faropoint'},
+    {lat:40.59,lng:-74.62,city:'Branchburg',state:'NJ',kw:305,stage:'Accepted',client:'Faropoint'},
+    // IL cluster
+    {lat:41.87,lng:-87.65,city:'Chicago',state:'IL',kw:720,stage:'Awarded',client:'High Street'},
+    {lat:41.86,lng:-87.64,city:'Chicago',state:'IL',kw:510,stage:'Review',client:'High Street'},
+    {lat:41.76,lng:-88.15,city:'Naperville',state:'IL',kw:480,stage:'Accepted',client:'Plymouth'},
+    {lat:41.88,lng:-88.28,city:'West Chicago',state:'IL',kw:780,stage:'NTP',client:'Plymouth'},
+    {lat:42.04,lng:-88.28,city:'Elgin',state:'IL',kw:350,stage:'Lease',client:'Plymouth'},
+    {lat:41.89,lng:-87.62,city:'Chicago S',state:'IL',kw:650,stage:'RFP',client:'High Street'},
+    // MA
+    {lat:42.36,lng:-71.06,city:'Boston',state:'MA',kw:350,stage:'Accepted',client:'Bain/OSC'},
+    {lat:42.30,lng:-72.64,city:'Chester',state:'MA',kw:310,stage:'Review',client:'Bain/OSC'},
+    {lat:42.59,lng:-71.30,city:'Lowell',state:'MA',kw:420,stage:'NTP',client:'Creative Dev'},
+    // NY
+    {lat:40.93,lng:-73.79,city:'New Rochelle',state:'NY',kw:600,stage:'PTO',client:'EPR'},
+    {lat:40.87,lng:-73.87,city:'Yonkers',state:'NY',kw:450,stage:'Awarded',client:'Sterling'},
+    {lat:40.75,lng:-73.98,city:'NYC',state:'NY',kw:380,stage:'RFP',client:'Vassar'},
+    // MD
+    {lat:39.02,lng:-76.85,city:'Beltsville',state:'MD',kw:480,stage:'Accepted',client:'Bain/OSC'},
+    {lat:39.28,lng:-76.61,city:'Baltimore',state:'MD',kw:350,stage:'Awarded',client:'Turnbridge'},
+    {lat:39.10,lng:-76.78,city:'Crofton',state:'MD',kw:420,stage:'PTO',client:'RPT Realty'},
+    // CA
+    {lat:37.77,lng:-122.42,city:'San Francisco',state:'CA',kw:800,stage:'Accepted',client:'Federal Realty'},
+    {lat:34.05,lng:-118.24,city:'Los Angeles',state:'CA',kw:650,stage:'Awarded',client:'GTIS'},
+    {lat:34.10,lng:-117.58,city:'Ontario',state:'CA',kw:1200,stage:'RFP',client:'Faropoint'},
+    // CO
+    {lat:39.74,lng:-104.99,city:'Denver',state:'CO',kw:500,stage:'Lease',client:'Realterm'},
+    // CT
+    {lat:41.31,lng:-72.92,city:'New Haven',state:'CT',kw:380,stage:'Awarded',client:'Rosengarten'},
+    // ME
+    {lat:43.66,lng:-70.26,city:'Portland',state:'ME',kw:220,stage:'NTP',client:'Plymouth'},
+  ];
+
+  const stageColor = s => {
+    if(s==='PTO') return 'var(--g)';
+    if(s==='NTP') return '#fff';
+    if(s==='Accepted'||s==='Lease') return 'var(--y)';
+    if(s==='Awarded') return 'var(--w)';
+    if(s==='Risk') return 'var(--r)';
+    return 'var(--bl)';
+  };
+
+  // Map dimensions matching tile grid
+  const W=780, H=420;
+  // Geographic projection for dots
+  const projX = lng => ((lng+125)/(125-66))*W;
+  const projY = lat => ((50-lat)/(50-25))*H;
+  // State center lookup for placing dots on tiles
+  const tileCenters = {};
+  const stDefs = [
+    {st:'WA',r:0,c:0},{st:'MT',r:0,c:2},{st:'ND',r:0,c:4},{st:'MN',r:0,c:5},{st:'WI',r:0,c:7},{st:'MI',r:0,c:8},{st:'VT',r:0,c:10},{st:'ME',r:0,c:11},
+    {st:'OR',r:1,c:0},{st:'ID',r:1,c:1},{st:'WY',r:1,c:2},{st:'SD',r:1,c:4},{st:'IA',r:1,c:5},{st:'IN',r:1,c:7},{st:'OH',r:1,c:8},{st:'NY',r:1,c:9},{st:'NH',r:1,c:10},{st:'MA',r:1,c:11},
+    {st:'CA',r:2,c:0},{st:'NV',r:2,c:1},{st:'CO',r:2,c:2},{st:'NE',r:2,c:3},{st:'MO',r:2,c:5},{st:'IL',r:2,c:6},{st:'PA',r:2,c:8},{st:'NJ',r:2,c:9},{st:'CT',r:2,c:10},{st:'RI',r:2,c:11},
+    {st:'UT',r:3,c:1},{st:'AZ',r:3,c:1.5},{st:'KS',r:3,c:3},{st:'AR',r:3,c:5},{st:'KY',r:3,c:7},{st:'WV',r:3,c:8},{st:'MD',r:3,c:9},{st:'DE',r:3,c:10},
+    {st:'NM',r:4,c:2},{st:'OK',r:4,c:3},{st:'TN',r:4,c:6},{st:'VA',r:4,c:8},{st:'DC',r:4,c:9},
+    {st:'TX',r:5,c:3},{st:'LA',r:5,c:4.5},{st:'MS',r:5,c:5.5},{st:'AL',r:5,c:6.5},{st:'GA',r:5,c:7.5},{st:'SC',r:5,c:8.5},{st:'NC',r:5,c:8},
+    {st:'FL',r:6,c:8},
+  ];
+  stDefs.forEach(s => { tileCenters[s.st] = { x: padX + s.c*(tileW+gap) + tileW/2, y: padY + s.r*(tileH+gap) + tileH/2 }; });
+
+  let svg = `<svg viewBox="0 0 ${W} ${H}" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" style="background:var(--n)">`;
+  // State outlines (simplified)
+  svg += '<rect x="0" y="0" width="'+W+'" height="'+H+'" fill="var(--n)" rx="0"/>';
+
+  // State tile grid - each state is a rounded rect positioned geographically
+  const states = [
+    // Row 1 - Northern
+    {st:'WA',r:0,c:0},{st:'MT',r:0,c:2},{st:'ND',r:0,c:4},{st:'MN',r:0,c:5},{st:'WI',r:0,c:7},{st:'MI',r:0,c:8},{st:'VT',r:0,c:10},{st:'ME',r:0,c:11,active:true},
+    // Row 2
+    {st:'OR',r:1,c:0},{st:'ID',r:1,c:1},{st:'WY',r:1,c:2},{st:'SD',r:1,c:4},{st:'IA',r:1,c:5},{st:'IN',r:1,c:7},{st:'OH',r:1,c:8},{st:'NY',r:1,c:9,active:true},{st:'NH',r:1,c:10},{st:'MA',r:1,c:11,active:true},
+    // Row 3
+    {st:'CA',r:2,c:0,active:true},{st:'NV',r:2,c:1},{st:'CO',r:2,c:2,active:true},{st:'NE',r:2,c:3},{st:'MO',r:2,c:5},{st:'IL',r:2,c:6,active:true},{st:'PA',r:2,c:8},{st:'NJ',r:2,c:9,active:true},{st:'CT',r:2,c:10,active:true},{st:'RI',r:2,c:11},
+    // Row 4
+    {st:'UT',r:3,c:1},{st:'AZ',r:3,c:1.5},{st:'KS',r:3,c:3},{st:'AR',r:3,c:5},{st:'KY',r:3,c:7},{st:'WV',r:3,c:8},{st:'MD',r:3,c:9,active:true},{st:'DE',r:3,c:10},
+    // Row 5
+    {st:'NM',r:4,c:2},{st:'OK',r:4,c:3},{st:'TN',r:4,c:6},{st:'VA',r:4,c:8,active:false},{st:'DC',r:4,c:9},
+    // Row 6
+    {st:'TX',r:5,c:3},{st:'LA',r:5,c:4.5},{st:'MS',r:5,c:5.5},{st:'AL',r:5,c:6.5},{st:'GA',r:5,c:7.5},{st:'SC',r:5,c:8.5},{st:'NC',r:5,c:8},
+    // Row 7
+    {st:'FL',r:6,c:8},
+  ];
+
+  states.forEach(s => {
+    const x = padX + s.c * (tileW + gap);
+    const y = padY + s.r * (tileH + gap);
+    const isActive = s.active === true;
+    const fill = isActive ? 'rgba(251,215,7,0.08)' : 'rgba(255,255,255,0.02)';
+    const stroke = isActive ? 'rgba(251,215,7,0.25)' : 'rgba(255,255,255,0.06)';
+    const textFill = isActive ? 'rgba(251,215,7,0.6)' : 'rgba(255,255,255,0.12)';
+    svg += '<rect x="'+x+'" y="'+y+'" width="'+tileW+'" height="'+tileH+'" rx="4" fill="'+fill+'" stroke="'+stroke+'" stroke-width="1"/>';
+    svg += '<text x="'+(x+tileW/2)+'" y="'+(y+tileH/2+4)+'" fill="'+textFill+'" font-size="11" font-weight="700" text-anchor="middle" font-family="var(--font)">'+s.st+'</text>';
+  });
+
+  // Plot sites on state tiles with jitter
+  const stateSlots = {};
+  sites.forEach(s => {
+    const tc = tileCenters[s.state];
+    if(!tc) return;
+    if(!stateSlots[s.state]) stateSlots[s.state] = 0;
+    const idx = stateSlots[s.state]++;
+    // Jitter within tile: spiral outward
+    const angle = idx * 2.4;
+    const dist = 3 + idx * 2.5;
+    const x = tc.x + Math.cos(angle) * Math.min(dist, tileW/2-6);
+    const y = tc.y + Math.sin(angle) * Math.min(dist, tileH/2-6);
+    const r = Math.max(3, Math.min(8, s.kw/250));
+    const c = stageColor(s.stage);
+    svg += `<circle cx="${x}" cy="${y}" r="${r+2}" fill="${c}" opacity="0.15"/>`;
+    svg += `<circle cx="${x}" cy="${y}" r="${r}" fill="${c}" opacity="0.85" style="cursor:pointer"><title>${s.client}: ${s.city}, ${s.state} (${s.kw}kW) - ${s.stage}</title></circle>`;
+  });
+
+  svg += '</svg>';
+  document.getElementById('portfolioMap').innerHTML = svg;
+
+  // State table
+  const byState = {};
+  sites.forEach(s => {
+    if(!byState[s.state]) byState[s.state] = {count:0,kw:0};
+    byState[s.state].count++;
+    byState[s.state].kw += s.kw;
+  });
+  let stH = '';
+  Object.entries(byState).sort((a,b)=>b[1].kw-a[1].kw).forEach(([st,d]) => {
+    stH += `<div class="detail-row"><span>${st} (${d.count} sites)</span><strong>${(d.kw/1000).toFixed(1)} MW</strong></div>`;
+  });
+  document.getElementById('portfolioStateTable').innerHTML = stH;
+
+  // Stage table
+  const byStage = {};
+  sites.forEach(s => {
+    if(!byStage[s.stage]) byStage[s.stage] = {count:0,kw:0};
+    byStage[s.stage].count++;
+    byStage[s.stage].kw += s.kw;
+  });
+  let sgH = '';
+  Object.entries(byStage).sort((a,b)=>b[1].kw-a[1].kw).forEach(([st,d]) => {
+    sgH += `<div class="detail-row"><span>${st} (${d.count} sites)</span><strong style="color:${stageColor(st)}">${(d.kw/1000).toFixed(1)} MW</strong></div>`;
+  });
+  document.getElementById('portfolioStageTable').innerHTML = sgH;
+}
+
+renderPortfolioMap();
+
+// Initialize client portal on load
+setTimeout(() => { if(document.getElementById('clientPortalSelect')) renderClientPortal(); }, 100);
+
+function renderActiveRfps(){
+  const rfps=[
+    {title:'High Street - 900 Richards Run, Burlington, NJ',client:'High Street Logistics',status:'Awarded',date:'May 6, 2026',bids:7,mw:'2.1',type:'CS',round:'Single Round'},
+    {title:'Onyx Equities EHanover NJ - Second Round',client:'Onyx Equities',status:'Closed to Bidding',date:'May 1, 2026',bids:5,mw:'6.3',type:'BTM',round:'Round 2'},
+    {title:'Faropoint - NJ, IL, MD Portfolio - 3-30-26',client:'Faropoint',status:'Closed to Bidding',date:'Apr 17, 2026',bids:9,mw:'4.8',type:'CS',round:'Single Round'},
+    {title:'Bain BlueWater Chester MD - First Round',client:'Bain Capital',status:'Awarded',date:'Mar 19, 2026',bids:6,mw:'3.2',type:'CS',round:'Round 1'},
+    {title:'Turnbridge Equities 169 Pulaski NJ - First Round',client:'Turnbridge Equities',status:'Closed to Bidding',date:'Jan 30, 2026',bids:8,mw:'5.5',type:'BTM',round:'Round 1'},
+  ];
+  const el=document.getElementById('activeRfpGrid');
+  if(!el)return;
+  let h='';
+  rfps.forEach(r=>{
+    const statusColor=r.status==='Awarded'?'var(--g)':'var(--bl)';
+    h+=`<div class="mod">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px">
+        <div><div style="font-size:13px;font-weight:700;color:var(--t);margin-bottom:3px">${r.title}</div>
+        <div style="font-size:10px;color:var(--t2)">${r.client} / ${r.type} / ${r.mw} MW</div></div>
+        <div style="font-size:10px;font-weight:600;color:${statusColor};background:${r.status==='Awarded'?'var(--g-bg)':'var(--bl-bg)'};padding:3px 8px;border-radius:12px;white-space:nowrap">${r.status}</div>
+      </div>
+      <div style="display:flex;gap:16px">
+        <div><div style="font-size:8px;color:var(--t4);text-transform:uppercase;letter-spacing:.5px">Round</div><div style="font-size:12px;font-weight:600;color:var(--t)">${r.round}</div></div>
+        <div><div style="font-size:8px;color:var(--t4);text-transform:uppercase;letter-spacing:.5px">Bids</div><div style="font-size:12px;font-weight:600;color:var(--y)">${r.bids}</div></div>
+        <div><div style="font-size:8px;color:var(--t4);text-transform:uppercase;letter-spacing:.5px">Submitted</div><div style="font-size:12px;font-weight:600;color:var(--t2)">${r.date}</div></div>
+      </div>
+    </div>`;
+  });
+  el.innerHTML=h;
+}
+
+function renderVendorProfiles(){
+  const vendors=[
+    {name:'Solar Landscape LLC.',status:'Approved',revenue:'$97M',minSize:'500kW',maxSize:'No maximum',
+     states:['NJ','NY','PA','CA','CO','DE','IL','MD','MA'],
+     types:'PPA, Roof Lease',epc:'Yes',
+     mwDev:205,mwEpc:225,mwOwned:148,mwDev12:70,mwEpc12:70,
+     projectTypes:{commercial:200,ground:6,canopy:4,storage:1},
+     contacts:[{name:'Corey Gross',role:'Primary',email:'corey@solarlandscape.com'},{name:'Mark Sarlitto',role:'Sr. Project Developer',email:'mark@solarlandscape.com'},{name:'Tyler Haines',role:'Director of Partnerships',email:'thaines@solarlandscape.com'},{name:'Lukas Lukoschek',role:'Director of Development',email:'llukoschek@solarlandscape.com'}],
+     bidsTotal:91,bidsAwarded:14,bidsRecent:['High Street Burlington NJ (Dec 25)','High Street IL Portfolio (Dec 25)','Faropoint NJ Batch 3 (Jul 25)','Plymouth REIT IL (Jul 25)'],
+     skProjects:37,skRating:4.1,skMarkets:'NJ, IL, NY'},
+    {name:'Brightcore Energy',status:'Approved',revenue:'$45M',minSize:'200kW',maxSize:'10MW',
+     states:['NJ','NY','CT','MA'],types:'PPA, Roof Lease',epc:'Yes',
+     mwDev:85,mwEpc:90,mwOwned:62,mwDev12:25,mwEpc12:28,
+     projectTypes:{commercial:75,ground:2,canopy:1,storage:0},
+     contacts:[{name:'Joe Brancato',role:'Primary',email:'jbrancato@brightcore.com'},{name:'Alex Demopoulos',role:'VP Development',email:'ademopoulos@brightcore.com'}],
+     bidsTotal:42,bidsAwarded:8,bidsRecent:['Faropoint NJ Portfolio (Mar 26)','Onyx Equities NJ (Mar 26)'],
+     skProjects:15,skRating:4.3,skMarkets:'NJ'},
+  ];
+  const el=document.getElementById('vendorProfileCards');
+  if(!el)return;
+  let h='';
+  vendors.forEach(v=>{
+    h+=`<div class="mod" style="margin-bottom:14px">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px">
+        <div>
+          <div style="font-size:16px;font-weight:800;color:var(--t);margin-bottom:2px">${v.name}</div>
+          <div style="font-size:10px;color:var(--t2)">Revenue: ${v.revenue} / Min: ${v.minSize} / Max: ${v.maxSize}</div>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <div style="text-align:center;background:var(--n5);border:2px solid ${v.skRating>=4?'var(--g)':'var(--y)'};border-radius:10px;padding:6px 12px">
+            <div style="font-size:18px;font-weight:800;color:${v.skRating>=4?'var(--g)':'var(--y)'}">${v.skRating}</div>
+            <div style="font-size:7px;color:var(--t4);text-transform:uppercase">SK Rating</div>
+          </div>
+          <div style="font-size:10px;font-weight:600;color:var(--g);background:var(--g-bg);padding:3px 8px;border-radius:12px">${v.status}</div>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:16px">
+        <div>
+          <div style="font-size:9px;color:var(--t4);font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">Experience</div>
+          <div class="detail-row"><span>MW as Turnkey Developer</span><strong>${v.mwDev}</strong></div>
+          <div class="detail-row"><span>MW as EPC/Installer</span><strong>${v.mwEpc}</strong></div>
+          <div class="detail-row"><span>MW Under Ownership</span><strong>${v.mwOwned}</strong></div>
+          <div class="detail-row"><span>Turnkey (last 12mo)</span><strong>${v.mwDev12} MW</strong></div>
+          <div class="detail-row"><span>EPC (last 12mo)</span><strong>${v.mwEpc12} MW</strong></div>
+          <div class="detail-row"><span>Types</span><strong>${v.types}</strong></div>
+          <div class="detail-row"><span>EPC Capable</span><strong>${v.epc}</strong></div>
+        </div>
+        <div>
+          <div style="font-size:9px;color:var(--t4);font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">Markets & Projects</div>
+          <div class="detail-row"><span>Service Areas</span><strong>${v.states.join(', ')}</strong></div>
+          <div class="detail-row"><span>Commercial Rooftop</span><strong>${v.projectTypes.commercial}</strong></div>
+          <div class="detail-row"><span>Ground Mount</span><strong>${v.projectTypes.ground}</strong></div>
+          <div class="detail-row"><span>Canopy</span><strong>${v.projectTypes.canopy}</strong></div>
+          <div class="detail-row"><span>Storage</span><strong>${v.projectTypes.storage}</strong></div>
+          <div style="margin-top:8px"><div style="font-size:9px;color:var(--t4);font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">SK Pipeline</div>
+          <div class="detail-row"><span>Active SK Projects</span><strong style="color:var(--y)">${v.skProjects}</strong></div>
+          <div class="detail-row"><span>SK Markets</span><strong>${v.skMarkets}</strong></div></div>
+        </div>
+        <div>
+          <div style="font-size:9px;color:var(--t4);font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">Bid History (Procureware)</div>
+          <div class="detail-row"><span>Total Bids Submitted</span><strong>${v.bidsTotal}</strong></div>
+          <div class="detail-row"><span>Bids Awarded</span><strong style="color:var(--g)">${v.bidsAwarded}</strong></div>
+          <div class="detail-row"><span>Win Rate</span><strong>${Math.round(v.bidsAwarded/v.bidsTotal*100)}%</strong></div>
+          <div style="margin-top:8px"><div style="font-size:9px;color:var(--t4);font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">Recent Bids</div>
+          ${v.bidsRecent.map(b=>'<div style="font-size:10px;color:var(--t2);padding:2px 0">'+b+'</div>').join('')}</div>
+        </div>
+      </div>
+
+      <div style="border-top:1px solid var(--b);padding-top:12px">
+        <div style="font-size:9px;color:var(--t4);font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">Key Contacts</div>
+        <div style="display:flex;gap:16px;flex-wrap:wrap">
+          ${v.contacts.map(c=>'<div style="font-size:10px"><span style="font-weight:600;color:var(--t)">'+c.name+'</span> <span style="color:var(--t3)">'+c.role+'</span></div>').join('')}
+        </div>
+      </div>
+    </div>`;
+  });
+  h+='<div style="font-size:10px;color:var(--t4);font-style:italic;padding:8px 0">Showing 2 of 113 vendors. Full profiles sourced from Procureware. Production version will display all rated vendors with filtering by market, project type, and rating.</div>';
+  el.innerHTML=h;
+}
+
+const chartFont = {family:"'Plus Jakarta Sans',sans-serif"};
+Chart.defaults.font.family = chartFont.family;
+Chart.defaults.color = '#8fa5b5';
+
+new Chart(document.getElementById('revChart'), {
+  type:'bar',
+  data:{
+    labels:['2020','2021','2022','2023','2024','2025','2026P','2027P'],
+    datasets:[{
+      label:'Revenue',
+      data:[227,410,1044,1541,2342,2007,3829,3656],
+      backgroundColor:['#2f4a5f','#2f4a5f','#2f4a5f','#2f4a5f','#2f4a5f','#2f4a5f','#FBD707','rgba(251,215,7,0.4)'],
+      borderRadius:4,
+      borderSkipped:false
+    }]
+  },
+  options:{
+    responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>'$'+ctx.raw.toLocaleString()+'K'}}},
+    scales:{
+      y:{grid:{color:'rgba(255,255,255,.04)'},ticks:{callback:v=>v>=1000?'$'+(v/1000).toFixed(1)+'M':'$'+v+'K'},border:{display:false}},
+      x:{grid:{display:false},border:{display:false}}
+    }
+  }
+});
+
+function cohortChart(id, data) {
+  new Chart(document.getElementById(id), {
+    type:'bar',
+    data:{
+      labels: data.map(d=>d.label),
+      datasets:[
+        {label:'Complete/NTP',data:data.map(d=>d.complete),backgroundColor:'#22c98a',borderRadius:3,borderSkipped:false},
+        {label:'Active',data:data.map(d=>d.active),backgroundColor:'#FBD707',borderRadius:3,borderSkipped:false},
+        {label:'Lost/Hold',data:data.map(d=>d.lost),backgroundColor:'#f05c5c',borderRadius:3,borderSkipped:false}
+      ]
+    },
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      indexAxis:'y',
+      plugins:{legend:{display:false}},
+      scales:{
+        x:{stacked:true,grid:{color:'rgba(255,255,255,.04)'},ticks:{callback:v=>v>=1000?'$'+(v/1000).toFixed(1)+'M':'$'+v+'K'},border:{display:false}},
+        y:{stacked:true,grid:{display:false},border:{display:false}}
+      }
+    }
+  });
+}
+
+cohortChart('cohort2023',[
+  {label:'PSA',complete:0,active:0,lost:385},
+  {label:'Pre RFP',complete:0,active:0,lost:1023},
+  {label:'Active RFP',complete:45,active:735,lost:617},
+  {label:'Awarded',complete:286,active:320,lost:243},
+  {label:'Contract',complete:588,active:0,lost:0},
+  {label:'Lease',complete:1395,active:1093,lost:5594},
+  {label:'NTP',complete:362,active:0,lost:0},
+]);
+
+cohortChart('cohort2024',[
+  {label:'PSA',complete:0,active:0,lost:1027},
+  {label:'Pre RFP',complete:0,active:0,lost:639},
+  {label:'Awarded',complete:0,active:250,lost:188},
+  {label:'Contract',complete:713,active:0,lost:0},
+  {label:'Lease',complete:0,active:1921,lost:4400},
+  {label:'Accepted',complete:1739,active:0,lost:212},
+  {label:'NTP',complete:376,active:0,lost:0},
+]);
+
+cohortChart('cohort2025',[
+  {label:'Pre RFP',complete:0,active:1774,lost:391},
+  {label:'RFP',complete:0,active:1559,lost:3800},
+  {label:'Awarded',complete:0,active:4518,lost:674},
+  {label:'Contract',complete:266,active:0,lost:0},
+  {label:'Lease',complete:0,active:4683,lost:2566},
+  {label:'Accepted',complete:260,active:699,lost:703},
+]);
+
+// EPC Pricing Trend Chart
+new Chart(document.getElementById('epcTrendChart'), {
+  type:'line',
+  data:{
+    labels:['Q1 22','Q2 22','Q3 22','Q4 22','Q1 23','Q2 23','Q3 23','Q4 23','Q1 24','Q2 24','Q3 24','Q4 24','Q1 25','Q2 25','Q3 25','Q4 25','Q1 26','Q2 26'],
+    datasets:[
+      {label:'<100kW',data:[2.95,2.92,2.90,2.88,2.86,2.84,2.82,2.80,2.79,2.78,2.77,2.76,2.75,2.74,2.73,2.72,2.72,2.72],borderColor:'#f05c5c',backgroundColor:'rgba(240,92,92,0.05)',borderWidth:2,tension:0.3,pointRadius:0,fill:true},
+      {label:'100-250kW',data:[2.70,2.68,2.65,2.62,2.58,2.55,2.52,2.48,2.46,2.44,2.42,2.40,2.39,2.38,2.37,2.36,2.35,2.35],borderColor:'#f5a623',backgroundColor:'rgba(245,166,35,0.05)',borderWidth:2,tension:0.3,pointRadius:0,fill:true},
+      {label:'250-500kW',data:[2.55,2.50,2.48,2.45,2.40,2.38,2.35,2.30,2.28,2.25,2.22,2.20,2.18,2.16,2.14,2.13,2.12,2.12],borderColor:'#FBD707',backgroundColor:'rgba(251,215,7,0.05)',borderWidth:2,tension:0.3,pointRadius:0,fill:true},
+      {label:'500kW-1MW',data:[2.42,2.38,2.35,2.30,2.25,2.22,2.18,2.12,2.10,2.08,2.05,2.02,2.00,1.98,1.96,1.94,1.93,1.92],borderColor:'#22c98a',backgroundColor:'rgba(34,201,138,0.05)',borderWidth:2,tension:0.3,pointRadius:0,fill:true},
+      {label:'Weighted Avg',data:[2.60,2.57,2.54,2.50,2.46,2.43,2.40,2.35,2.32,2.29,2.26,2.23,2.20,2.17,2.14,2.10,2.07,2.05],borderColor:'#fff',backgroundColor:'rgba(255,255,255,0.03)',borderWidth:2.5,borderDash:[6,3],tension:0.3,pointRadius:0,fill:false},
+    ]
+  },
+  options:{
+    responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{position:'bottom',labels:{boxWidth:12,padding:14,font:{size:10}}}},
+    scales:{
+      y:{grid:{color:'rgba(255,255,255,.04)'},ticks:{callback:v=>'$'+v.toFixed(2)},border:{display:false},min:1.80,max:3.05},
+      x:{grid:{color:'rgba(255,255,255,.02)'},border:{display:false},ticks:{font:{size:9},maxRotation:45}}
+    }
+  }
+});
+
+
+// ============ PROJECTOR ============
+
+let projType = 'CS';
+let projScenario = 'base';
+
+function setType(t) {
+  projType = t;
+  document.getElementById('typeCS').classList.toggle('active', t==='CS');
+  document.getElementById('typeBTM').classList.toggle('active', t==='BTM');
+}
+
+function setScenario(s) {
+  projScenario = s;
+  document.getElementById('scenLow').classList.toggle('active', s==='low');
+  document.getElementById('scenBase').classList.toggle('active', s==='base');
+  document.getElementById('scenHigh').classList.toggle('active', s==='high');
+}
+
+const marketData = {
+  NJ: {feeCS:0.14,feeBTM:0.19,devs:['Solar Landscape','Brightcore','Dimension'],topDev:'Solar Landscape',projCount:99},
+  IL: {feeCS:0.18,feeBTM:0.16,devs:['DSD Renewables','Pivot Energy','Dimension'],topDev:'Pivot Energy',projCount:51},
+  MA: {feeCS:0.14,feeBTM:0.15,devs:['Revision Energy','Brightcore'],topDev:'Revision Energy',projCount:35},
+  NY: {feeCS:0.16,feeBTM:0.17,devs:['Solar Landscape','Brightcore'],topDev:'Solar Landscape',projCount:32},
+  MD: {feeCS:0.19,feeBTM:0.18,devs:['Wunder','Pivot Energy'],topDev:'Wunder',projCount:20},
+  CA: {feeCS:0.15,feeBTM:0.16,devs:['TBD'],topDev:'TBD',projCount:13},
+  CT: {feeCS:0.15,feeBTM:0.16,devs:['Evergreen'],topDev:'Evergreen',projCount:4},
+};
+
+// Conversion rates from cohort analysis (blended across vintages)
+const convRates = {
+  base: {
+    psa:   {surv:0.65, label:'PSA / Qualification'},
+    rfp:   {surv:0.70, label:'Active RFP'},
+    award: {surv:0.60, label:'Awarded'},
+    lease: {surv:0.55, label:'Option / Lease Signed'},
+    contract:{surv:0.90, label:'Vendor Contract Signed'},
+    accepted:{surv:0.95, label:'Accepted to Program'},
+    ntp:   {surv:1.00, label:'NTP / Construction'},
+  },
+  low: {
+    psa:   {surv:0.50, label:'PSA / Qualification'},
+    rfp:   {surv:0.55, label:'Active RFP'},
+    award: {surv:0.45, label:'Awarded'},
+    lease: {surv:0.40, label:'Option / Lease Signed'},
+    contract:{surv:0.80, label:'Vendor Contract Signed'},
+    accepted:{surv:0.85, label:'Accepted to Program'},
+    ntp:   {surv:1.00, label:'NTP / Construction'},
+  },
+  high: {
+    psa:   {surv:0.75, label:'PSA / Qualification'},
+    rfp:   {surv:0.80, label:'Active RFP'},
+    award: {surv:0.70, label:'Awarded'},
+    lease: {surv:0.65, label:'Option / Lease Signed'},
+    contract:{surv:0.95, label:'Vendor Contract Signed'},
+    accepted:{surv:0.98, label:'Accepted to Program'},
+    ntp:   {surv:1.00, label:'NTP / Construction'},
+  }
+};
+
+// Approximate months per stage (placeholder - need SF timestamps)
+const stageDuration = {psa:2,rfp:3,award:2,lease:4,contract:2,accepted:3,ntp:6};
+
+function runProjection() {
+  const bldgs = parseInt(document.getElementById('pBldgs').value) || 40;
+  const kwAvg = parseInt(document.getElementById('pKw').value) || 600;
+  const market = document.getElementById('pMarket').value;
+  const mkt = marketData[market];
+  const fee = projType === 'CS' ? mkt.feeCS : mkt.feeBTM;
+  const rates = convRates[projScenario];
+
+  const totalMW = (bldgs * kwAvg) / 1000;
+  const revPerProject = kwAvg * fee;
+  const grossRev = bldgs * revPerProject;
+
+  // Walk through stages
+  const stages = ['psa','rfp','award','lease','contract','accepted','ntp'];
+  let remaining = bldgs;
+  let cumMonths = 0;
+  const waterfall = [];
+
+  stages.forEach(s => {
+    const entering = remaining;
+    const surviving = Math.round(remaining * rates[s].surv);
+    const lost = entering - surviving;
+    cumMonths += stageDuration[s];
+    waterfall.push({
+      key: s,
+      label: rates[s].label,
+      entering: entering,
+      surviving: surviving,
+      lost: lost,
+      survRate: rates[s].surv,
+      cumMonths: cumMonths,
+      revAtStage: surviving * revPerProject,
+    });
+    remaining = surviving;
+  });
+
+  const finalProjects = remaining;
+  const finalRev = finalProjects * revPerProject;
+  const finalMW = (finalProjects * kwAvg) / 1000;
+  const convPct = (finalProjects / bldgs * 100).toFixed(1);
+  const totalMonths = cumMonths;
+
+  // Also compute all-scenario comparison
+  const allScenarios = {};
+  ['low','base','high'].forEach(sc => {
+    let rem = bldgs;
+    stages.forEach(s => { rem = Math.round(rem * convRates[sc][s].surv); });
+    allScenarios[sc] = {proj: rem, rev: rem * revPerProject};
+  });
+
+  // Render output
+  const out = document.getElementById('projOutput');
+  out.innerHTML = `
+    <div class="mod" style="margin-bottom:14px">
+      <div class="mod-h"><div class="mod-t">Projected Revenue</div><div class="mod-badge g">${projScenario.charAt(0).toUpperCase()+projScenario.slice(1)} Scenario</div></div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px">
+        <div style="background:var(--n);border-radius:8px;padding:14px;border:1px solid var(--b);text-align:center">
+          <div style="font-size:9px;color:var(--t4);text-transform:uppercase;letter-spacing:.7px;font-weight:600;margin-bottom:6px">Portfolio Input</div>
+          <div style="font-size:22px;font-weight:800;color:var(--t);letter-spacing:-1px">${bldgs}</div>
+          <div style="font-size:10px;color:var(--t2)">buildings / ${totalMW.toFixed(1)} MW</div>
+        </div>
+        <div style="background:var(--n);border-radius:8px;padding:14px;border:1px solid var(--b);text-align:center">
+          <div style="font-size:9px;color:var(--t4);text-transform:uppercase;letter-spacing:.7px;font-weight:600;margin-bottom:6px">Projected Completions</div>
+          <div style="font-size:22px;font-weight:800;color:var(--g);letter-spacing:-1px">${finalProjects}</div>
+          <div style="font-size:10px;color:var(--t2)">${convPct}% conversion / ${finalMW.toFixed(1)} MW</div>
+        </div>
+        <div style="background:var(--n);border-radius:8px;padding:14px;border:1px solid var(--y-border);text-align:center">
+          <div style="font-size:9px;color:var(--t4);text-transform:uppercase;letter-spacing:.7px;font-weight:600;margin-bottom:6px">Expected SK Revenue</div>
+          <div style="font-size:22px;font-weight:800;color:var(--y);letter-spacing:-1px">$${(finalRev/1e6).toFixed(2)}M</div>
+          <div style="font-size:10px;color:var(--t2)">at $${fee.toFixed(2)}/W in ${market}</div>
+        </div>
+        <div style="background:var(--n);border-radius:8px;padding:14px;border:1px solid var(--b);text-align:center">
+          <div style="font-size:9px;color:var(--t4);text-transform:uppercase;letter-spacing:.7px;font-weight:600;margin-bottom:6px">Est. Timeline</div>
+          <div style="font-size:22px;font-weight:800;color:var(--t2);letter-spacing:-1px">${totalMonths}mo</div>
+          <div style="font-size:10px;color:var(--t2)">first NTP ~18mo</div>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:12px 0;border-top:1px solid var(--b);border-bottom:1px solid var(--b);margin-bottom:16px">
+        <div style="text-align:center;opacity:${projScenario==='low'?'1':'0.5'}">
+          <div style="font-size:9px;color:var(--t4);text-transform:uppercase;letter-spacing:.7px;font-weight:600">Low</div>
+          <div style="font-size:16px;font-weight:700;color:${projScenario==='low'?'var(--y)':'var(--t3)'}">${allScenarios.low.proj} proj / $${(allScenarios.low.rev/1e6).toFixed(2)}M</div>
+        </div>
+        <div style="text-align:center;opacity:${projScenario==='base'?'1':'0.5'}">
+          <div style="font-size:9px;color:var(--t4);text-transform:uppercase;letter-spacing:.7px;font-weight:600">Base</div>
+          <div style="font-size:16px;font-weight:700;color:${projScenario==='base'?'var(--y)':'var(--t3)'}">${allScenarios.base.proj} proj / $${(allScenarios.base.rev/1e6).toFixed(2)}M</div>
+        </div>
+        <div style="text-align:center;opacity:${projScenario==='high'?'1':'0.5'}">
+          <div style="font-size:9px;color:var(--t4);text-transform:uppercase;letter-spacing:.7px;font-weight:600">High</div>
+          <div style="font-size:16px;font-weight:700;color:${projScenario==='high'?'var(--y)':'var(--t3)'}">${allScenarios.high.proj} proj / $${(allScenarios.high.rev/1e6).toFixed(2)}M</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="mod" style="margin-bottom:14px">
+      <div class="mod-h"><div class="mod-t">Stage-by-Stage Waterfall</div><div class="mod-badge">${bldgs} buildings entering</div></div>
+      <div style="font-size:10px;color:var(--t3);margin-bottom:12px">Each row shows how many buildings survive to the next stage. Lost = buildings that historically drop out at this stage based on cohort data.</div>
+      <div style="display:grid;grid-template-columns:1.2fr auto auto auto 1fr auto;gap:2px;font-size:10px">
+        <div class="cohort-header" style="text-align:left">Stage</div>
+        <div class="cohort-header">Entering</div>
+        <div class="cohort-header">Survival %</div>
+        <div class="cohort-header">Surviving</div>
+        <div class="cohort-header" style="text-align:left;padding-left:8px">Attrition</div>
+        <div class="cohort-header">Months</div>
+        ${waterfall.map(w => {
+          const barPct = (w.surviving / bldgs) * 100;
+          const lostPct = (w.lost / bldgs) * 100;
+          const cellClass = w.survRate >= 0.9 ? 'conv-good' : (w.survRate >= 0.6 ? 'conv-ok' : 'conv-bad');
+          return `
+            <div class="cohort-label">${w.label}</div>
+            <div class="cohort-cell" style="color:var(--t)">${w.entering}</div>
+            <div class="cohort-cell ${cellClass} conv-rate">${(w.survRate*100).toFixed(0)}%</div>
+            <div class="cohort-cell" style="color:var(--g);font-weight:700">${w.surviving}</div>
+            <div class="cohort-cell" style="padding:4px 8px">
+              <div style="display:flex;align-items:center;gap:6px">
+                <div style="flex:1;height:10px;background:var(--n);border-radius:3px;overflow:hidden;display:flex">
+                  <div style="width:${barPct}%;background:var(--g);border-radius:2px"></div>
+                  <div style="width:${lostPct}%;background:var(--r);border-radius:0 2px 2px 0;opacity:.5"></div>
+                </div>
+                <span style="color:var(--r);font-size:9px;width:24px;text-align:right">-${w.lost}</span>
+              </div>
+            </div>
+            <div class="cohort-cell conv-na">${w.cumMonths}mo</div>
+          `;
+        }).join('')}
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="mod">
+        <div class="mod-h"><div class="mod-t">Revenue Buildup</div></div>
+        <div class="detail-row"><span>Gross portfolio value (${bldgs} x ${kwAvg}kW x $${fee.toFixed(2)}/W)</span><strong>$${(grossRev/1e6).toFixed(2)}M</strong></div>
+        <div class="detail-row"><span>Stage attrition loss (${bldgs - finalProjects} projects lost)</span><strong style="color:var(--r)">-$${((grossRev - finalRev)/1e6).toFixed(2)}M</strong></div>
+        <div class="detail-row" style="border-top:1px solid var(--y-border);padding-top:8px;margin-top:4px"><span style="font-weight:700;color:var(--t)">Net expected SolarKal revenue</span><strong style="color:var(--y);font-size:13px">$${(finalRev/1e6).toFixed(2)}M</strong></div>
+        <div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--b)">
+          <div style="font-size:9px;color:var(--t4);font-weight:600;text-transform:uppercase;letter-spacing:.7px;margin-bottom:6px">Unit Economics</div>
+          <div class="detail-row"><span>Revenue per completed project</span><strong>$${revPerProject.toLocaleString()}</strong></div>
+          <div class="detail-row"><span>Revenue per input building</span><strong>$${(finalRev/bldgs).toLocaleString(undefined,{maximumFractionDigits:0})}</strong></div>
+          <div class="detail-row"><span>Cost of attrition per lost building</span><strong style="color:var(--r)">$${(revPerProject).toLocaleString()}</strong></div>
+        </div>
+      </div>
+
+      <div class="mod">
+        <div class="mod-h"><div class="mod-t">Deployment Recommendation</div><div class="mod-badge bl">${market}</div></div>
+        <div class="detail-row"><span>SolarKal experience in market</span><strong>${mkt.projCount} projects</strong></div>
+        <div class="detail-row"><span>Recommended developers</span><strong>${mkt.devs.slice(0,2).join(', ')}</strong></div>
+        <div class="detail-row"><span>Top-rated developer</span><strong style="color:var(--g)">${mkt.topDev}</strong></div>
+        <div class="detail-row"><span>Project type</span><strong>${projType === 'CS' ? 'Community Solar' : 'Behind the Meter'}</strong></div>
+        <div class="detail-row"><span>Fee per watt</span><strong>$${fee.toFixed(2)}/W</strong></div>
+        <div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--b)">
+          <div style="font-size:9px;color:var(--t4);font-weight:600;text-transform:uppercase;letter-spacing:.7px;margin-bottom:6px">Data Backing</div>
+          <div class="detail-row"><span>Conversion rates</span><strong>3-yr cohort (2023-2026)</strong></div>
+          <div class="detail-row"><span>Fee/watt</span><strong>283 RFP outcomes</strong></div>
+          <div class="detail-row"><span>Stage duration</span><strong style="color:var(--w)">Placeholder</strong></div>
+          <div class="detail-row"><span>Developer scoring</span><strong style="color:var(--w)">Partial</strong></div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+// ============ CHAT WIDGET ============
+let chatOpen = false;
+let chatHistory = [];
+
+function toggleChat() {
+  chatOpen = !chatOpen;
+  document.getElementById('chatSidebar').classList.toggle('open', chatOpen);
+  const btn = document.getElementById('chatToggleBtn');
+  if(btn) btn.style.background = chatOpen ? 'var(--y)' : '';
+  if(btn) btn.style.color = chatOpen ? 'var(--n)' : '';
+  if(chatOpen) setTimeout(() => document.getElementById('chatInput')?.focus(), 300);
+}
+
+const platformContext = `You are the SolarKal Intelligence Platform AI Analyst. You have access to the following data about SolarKal's business:
+
+REVENUE:
+- 2024 actual: $2.34M, 2025 actual: $2.0M, 2026 projected: $3.83M (+91% YoY), 2027 projected: $3.66M
+- Revenue composition 2026: Community Solar 65%, BTM 28%, Portfolio/Upsell 4%, Other 3%
+- Named revenue (existing pipeline): $3.66M, Forecast (new wins): $0.16M
+
+PIPELINE (Active as of Apr 2026):
+- 108 active projects, 177 MW, $28.9M raw pipeline value
+- Risk-adjusted pipeline value: $7.7M (27% implied conversion)
+- 42 active clients, 102 total including closed
+- Stage distribution: PSA 5, Active RFP 8, Awarded 23, Vendor Contract 1, Option/Lease 29, Accepted to Program 32, NTP 10, PTO/Operating 4
+- Closed Lost: 74 projects, 142 MW, $21.2M lost revenue
+
+TOP CLIENTS BY 2026 PROJECTED REVENUE:
+Faropoint: $1,241K (35 proj, 36.9MW), Turnbridge: $459K (6 proj, 18.1MW), Matrix: $337K (3 proj, 10MW), High Street: $324K (9 proj, 24.6MW), Bain Capital: $264K (5 proj), Plymouth REIT: $231K (8 proj), Realterm: $216K (5 proj), Sterling: $167K (2 proj), Brennan: $131K (2 proj), Bergen: $122K (1 proj)
+
+CONVERSION ANALYTICS (from 3-year cohort data 2023-2026):
+- Vendor Contract Signed: 100% completion rate
+- NTP/Construction: 100% completion rate
+- Project Accepted to Program: ~89% completion rate
+- Awarded: ~17% completion rate
+- Option/Lease Signed: ~15% completion rate (THIS IS THE MAJOR BOTTLENECK)
+- Active RFP: ~3% completion rate
+- PSA/Pre-RFP: 0% completion rate
+
+VENDOR INTELLIGENCE (67 scored vendors, 230 in full directory, avg rating 8.9/10):
+Top rated (10/10): Dimension RE (368MW, 42% win rate, Partners Group), Pivot Energy (360MW, 44% win, ECP/JLC), Pfister Energy (100MW, 43% win), EDPR (41% win), Greenskies (292MW, 25% win), Nexamp (815MW), Summit Ridge (430MW), Madison Energy (250MW, 60% win), Altus Power (250MW), Scale Microgrids (800MW)
+Most active by bids: Solar Landscape 49 bids/25 won/51% (9/10), Advanced Solar 38/20/53% (9/10), Plankton 35/14/40% (9/10), DSD 34/17/50% (6/10), Pivot 32/14/44% (10/10), Pfister 28/12/43% (10/10), Evergreen 27/16/59% (8.5/10)
+Rating categories (each /10): Communication, Timeliness, Build Quality, Pricing, Reliability, Interconnection
+
+MARKETPLACE STATS (End-2025):
+187 RFPs conducted, 869 bids received, $6.3B aggregate bid value, 8.3 avg bids per RFP, 113 vendors in network, 32 companies awarded, 59% awarded to best-price bidder, 72% RFP success rate, 29% client savings vs median bid, 27% lost project rate, 26.3 MW built
+
+PRICING (sample markets):
+NJ: PPA $0.08-0.09/kWh, Turnkey $1.80/W, Lease $0.70-0.85/sqft
+IL: PPA $0.07/kWh, Turnkey $1.90/W, Lease $0.60/sqft
+NY: PPA $0.08-0.11/kWh, Turnkey $1.70-2.30/W
+CA: PPA $0.08-0.09/kWh, Turnkey $2.10-2.15/W
+MD: PPA $0.08/kWh, Turnkey $1.85/W
+
+Respond concisely. Use numbers from the data above. If asked something not covered by this data, say what data would be needed. Do not use em dashes. Keep responses focused and analytical.`;
+
+async function sendChat() {
+  const input = document.getElementById('chatInput');
+  const msg = input.value.trim();
+  if(!msg) return;
+
+  input.value = '';
+  input.style.height = '36px';
+  addMsg('user', msg);
+
+  chatHistory.push({role:'user', content: msg});
+
+  const sendBtn = document.getElementById('chatSend');
+  sendBtn.disabled = true;
+  const thinkingId = addMsg('assistant', '<span class="thinking">Analyzing...</span>');
+
+  try {
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        system: platformContext,
+        messages: chatHistory.slice(-10)
+      })
+    });
+
+    const data = await response.json();
+    const reply = data.content?.map(c => c.text || '').join('') || 'No response received.';
+
+    chatHistory.push({role:'assistant', content: reply});
+    updateMsg(thinkingId, reply);
+  } catch(err) {
+    updateMsg(thinkingId, 'Connection error. Please try again.');
+    console.error(err);
+  }
+
+  sendBtn.disabled = false;
+}
+
+let msgCounter = 0;
+function addMsg(role, html) {
+  const id = 'msg-' + (++msgCounter);
+  const container = document.getElementById('chatMessages');
+  if(role === 'assistant') {
+    const wrapper = document.createElement('div');
+    wrapper.style.cssText = 'display:flex;gap:8px;align-items:flex-start;align-self:flex-start;max-width:92%';
+    const av = document.createElement('img');
+    av.src = 'data:image/jpeg;base64,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';
+    av.style.cssText = 'width:22px;height:22px;object-fit:contain;flex-shrink:0;margin-top:2px';
+    const div = document.createElement('div');
+    div.className = 'chat-msg assistant';
+    div.style.maxWidth = '100%';
+    div.style.alignSelf = 'auto';
+    div.id = id;
+    div.innerHTML = html;
+    wrapper.appendChild(av);
+    wrapper.appendChild(div);
+    container.appendChild(wrapper);
+  } else {
+    const div = document.createElement('div');
+    div.className = 'chat-msg ' + role;
+    div.id = id;
+    div.innerHTML = html;
+    container.appendChild(div);
+  }
+  container.scrollTop = container.scrollHeight;
+  return id;
+}
+
+function updateMsg(id, text) {
+  const el = document.getElementById(id);
+  if(el) {
+    // Simple markdown-like formatting
+    let html = text
+      .replace(/\n\n/g, '<br><br>')
+      .replace(/\n/g, '<br>')
+      .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+      .replace(/\*(.+?)\*/g, '<em>$1</em>');
+    el.innerHTML = html;
+    el.parentElement.scrollTop = el.parentElement.scrollHeight;
+  }
+}
+
+// Auto-resize textarea
+document.getElementById('chatInput')?.addEventListener('input', function() {
+  this.style.height = '36px';
+  this.style.height = Math.min(this.scrollHeight, 80) + 'px';
+});
+
+</script>
+
+
+
+<!-- CHAT SIDEBAR -->
+<aside class="chat-sidebar" id="chatSidebar">
+  <div class="chat-header">
+    <div class="chat-header-title" style="display:flex;align-items:center;gap:8px"><img src="data:image/jpeg;base64,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" style="width:18px;height:18px;object-fit:contain">SolarKal <span>AI Analyst</span></div>
+    <button class="chat-close" onclick="toggleChat()">&times;</button>
+  </div>
+  <div class="chat-messages" id="chatMessages">
+    <div class="chat-msg system">Ask anything about pipeline, clients, vendors, pricing, or conversion analytics.</div>
+  </div>
+  <div class="chat-input-row">
+    <textarea class="chat-input" id="chatInput" placeholder="Ask a question..." rows="1" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendChat()}"></textarea>
+    <button class="chat-send" id="chatSend" onclick="sendChat()">Send</button>
+  </div>
+</aside>
+
+</body>
+</html>
