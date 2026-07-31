@@ -732,7 +732,7 @@ Each row shows where projects from a given vintage ended up. Conversion % = reve
 <!-- ============ INTERNAL CLIENT VIEW ============ -->
 <div class="page" id="page-internal-client-view">
 
-<div class="sec">Internal Client View <span style="font-size:11px;color:var(--t4);font-weight:400;letter-spacing:0">— Active Projects Only</span></div>
+<div class="sec">Internal Client View</div>
 
 <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:12px">
 <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
@@ -1029,9 +1029,6 @@ function parseCSV(text) {
   }
   
   console.log('CSV: rows=' + rows.length);
-  if (rows.length > 0) {
-    console.log('CSV columns:', Object.keys(rows[0]));
-  }
   return rows;
 }
 
@@ -1881,8 +1878,17 @@ function renderClientPortal(portal = 'internal') {
     });
   }
 
-  // Determine which columns to show (exclude the groupBy field since it's the section header)
-  const allCols = [
+  // Determine which columns to show - different sets for Internal vs External portal
+  const allCols = isExternal ? [
+    {key:'Project: Project Name',label:'Project',minW:'200px',bold:true},
+    {key:'Account',label:'Client',minW:'120px'},
+    {key:'Stage',label:'Stage',minW:'100px',status:true},
+    {key:'State',label:'State',minW:'40px'},
+    {key:'Project: Record Type',label:'Type',minW:'80px'},
+    {key:'Vendor Awarded',label:'Vendor',minW:'100px'},
+    {key:'Project Size (KW)',label:'Size (kW)',minW:'70px',num:true},
+    {key:'Year 1 Lease Rate',label:'Year 1 Rate',minW:'90px',num:true},
+  ] : [
     {key:'Project: Project Name',label:'Project',minW:'200px',bold:true},
     {key:'Account',label:'Client',minW:'120px'},
     {key:'Stage',label:'Stage',minW:'100px',status:true},
