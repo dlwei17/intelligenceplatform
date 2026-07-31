@@ -732,7 +732,7 @@ Each row shows where projects from a given vintage ended up. Conversion % = reve
 <!-- ============ INTERNAL CLIENT VIEW ============ -->
 <div class="page" id="page-internal-client-view">
 
-<div class="sec">Internal Client View <span style="font-size:11px;color:var(--t4);font-weight:400;letter-spacing:0;text-transform:none">&mdash; Active Projects Only &middot; build v2-2026-07-31</span></div>
+<div class="sec">Internal Client View <span style="font-size:11px;color:var(--t4);font-weight:400;letter-spacing:0;text-transform:none">&mdash; Active Projects Only &middot; build v3-2026-07-31</span></div>
 
 <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:12px">
 <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
@@ -761,7 +761,7 @@ Each row shows where projects from a given vintage ended up. Conversion % = reve
 <!-- ============ EXTERNAL CLIENT PORTAL ============ -->
 <div class="page" id="page-external-client-portal">
 
-<div class="sec">External Client Portal <span style="font-size:11px;color:var(--t4);font-weight:400;letter-spacing:0;text-transform:none">&mdash; build v2-2026-07-31</span></div>
+<div class="sec">External Client Portal <span style="font-size:11px;color:var(--t4);font-weight:400;letter-spacing:0;text-transform:none">&mdash; build v3-2026-07-31</span></div>
 
 <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:12px">
 <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
@@ -785,6 +785,9 @@ Each row shows where projects from a given vintage ended up. Conversion % = reve
 <input type="checkbox" id="showBackBurner" onchange="renderClientPortal('external')" style="cursor:pointer;width:16px;height:16px">
 <label for="showBackBurner" style="font-size:10px;color:var(--t2);font-weight:600;text-transform:uppercase;letter-spacing:.5px;cursor:pointer">Show Back Burner</label>
 </div>
+<div style="position:relative;margin-left:12px">
+<button type="button" onclick="toggleColPicker(event)" style="padding:8px 12px;background:var(--n);border:1px solid var(--b);border-radius:8px;color:var(--t2);font-family:var(--font);font-size:11px;font-weight:600;cursor:pointer;text-transform:uppercase;letter-spacing:.5px">Columns <span id="colCount"></span></button>
+<div id="colPicker" style="display:none;position:absolute;right:0;top:38px;z-index:50;background:var(--n3);border:1px solid var(--b2);border-radius:10px;padding:10px;min-width:250px;max-height:340px;overflow-y:auto;box-shadow:0 12px 32px rgba(0,0,0,.55)"></div>
 </div>
 <div id="epSummary" style="display:flex;gap:14px;align-items:flex-end;flex-wrap:wrap"></div>
 </div>
@@ -1028,7 +1031,7 @@ function parseCSV(text) {
     rows.push(obj);
   }
   
-  console.log('[BUILD v2-2026-07-31] CSV: rows=' + rows.length + ' cols=' + (rows[0] ? Object.keys(rows[0]).length : 0));
+  console.log('[BUILD v3-2026-07-31] CSV: rows=' + rows.length + ' cols=' + (rows[0] ? Object.keys(rows[0]).length : 0));
   return rows;
 }
 
@@ -1883,17 +1886,7 @@ function renderClientPortal(portal = 'internal') {
   }
 
   // Determine which columns to show (exclude the groupBy field since it's the section header)
-  const allCols = isExternal ? [
-    {key:'Project: Project Name',label:'Project',minW:'200px',bold:true},
-    {key:'Account',label:'Client',minW:'120px'},
-    {key:'Stage',label:'Stage',minW:'100px',status:true},
-    {key:'State',label:'State',minW:'40px'},
-    {key:'Project: Record Type',label:'Type',minW:'80px'},
-    {key:'System Type',label:'System',minW:'80px'},
-    {key:'Vendor Awarded',label:'Vendor',minW:'100px'},
-    {key:'Project Size (KW)',label:'Size (kW)',minW:'70px',num:true},
-    {key:'Year 1 Lease Rate',label:'Yr1 Lease Rate',minW:'90px',num:true},
-  ] : [
+  const allCols = isExternal ? getExtCols() : [
     {key:'Project: Project Name',label:'Project',minW:'200px',bold:true},
     {key:'Account',label:'Client',minW:'120px'},
     {key:'Stage',label:'Stage',minW:'100px',status:true},
@@ -1924,7 +1917,7 @@ function renderClientPortal(portal = 'internal') {
     h += '<span>' + gMW.toFixed(1) + ' MW</span>';
     h += '<span style="color:var(--y)">$' + (gRev/1e6).toFixed(2) + 'M</span>';
     h += '</div></div>';
-    h += '<div style="overflow-x:auto"><table class="pricing-tbl" style="min-width:900px"><thead><tr>';
+    h += '<div style="overflow-x:auto"><table class="pricing-tbl" style="min-width:' + Math.max(900, cols.length*115) + 'px"><thead><tr>';
     cols.forEach(c => {
       h += '<th style="' + (c.num?'text-align:right;':'') + 'min-width:' + (c.minW||'60px') + '">' + c.label + '</th>';
     });
@@ -1934,6 +1927,7 @@ function renderClientPortal(portal = 'internal') {
       h += '<tr>';
       cols.forEach(c => {
         let val = r[c.key] || '';
+        if (/^#+$/.test(val)) val = '-';
         let style = '';
         if (c.bold) style += 'font-weight:600;';
         if (c.num) style += 'text-align:right;font-variant-numeric:tabular-nums;';
@@ -1999,6 +1993,7 @@ function renderClientPortal(portal = 'internal') {
       h += '<tr style="opacity:0.7">';
       bbCols.forEach(c => {
         let val = r[c.key] || '';
+        if (/^#+$/.test(val)) val = '-';
         let style = '';
         if (c.bold) style += 'font-weight:600;';
         if (c.num) style += 'text-align:right;font-variant-numeric:tabular-nums;';
@@ -2022,6 +2017,87 @@ function renderClientPortal(portal = 'internal') {
   
   container.innerHTML = h;
 }
+
+
+// ===== External column picker =====
+const EXT_DEFAULT_COLS = ['Project: Project Name','Account','Stage','State',
+  'Project: Record Type','System Type','Project Size (KW)','Year 1 Lease Rate',
+  'Annual Escalator (lease)','Vendor Awarded'];
+let extVisibleCols = null;
+
+function extColDef(key) {
+  const d = {key:key, label:key, minW:'90px'};
+  if (key === 'Project: Project Name') { d.label='Project'; d.minW='200px'; d.bold=true; }
+  else if (key === 'Account') { d.label='Client'; d.minW='120px'; }
+  else if (key === 'Stage') { d.label='Stage'; d.minW='100px'; d.status=true; }
+  else if (key === 'State') { d.label='State'; d.minW='40px'; }
+  else if (key === 'Project: Record Type') { d.label='Type'; d.minW='80px'; }
+  else if (key === 'System Type') { d.label='System'; d.minW='70px'; }
+  else if (key === 'Vendor Awarded') { d.label='Vendor'; d.minW='100px'; }
+  else if (key === 'Project Size (KW)') { d.label='Size (kW)'; d.minW='70px'; d.num=true; }
+  else if (key === 'Year 1 Lease Rate') { d.label='Yr1 Lease Rate'; d.minW='90px'; d.num=true; d.dollar=true; }
+  else if (key === 'Annual Escalator (lease)') { d.label='Escalator'; d.minW='60px'; d.num=true; }
+  else if (/Date|date/.test(key)) { d.label=key.replace('Project: ','').replace(' Date',''); d.minW='85px'; }
+  return d;
+}
+
+function extAllHeaders() {
+  if (!externalPortalData || !externalPortalData.length) return EXT_DEFAULT_COLS.slice();
+  return Object.keys(externalPortalData[0]).filter(h => h && h.trim());
+}
+
+function getExtCols() {
+  const all = extAllHeaders();
+  if (!extVisibleCols) extVisibleCols = all.filter(h => EXT_DEFAULT_COLS.indexOf(h) !== -1);
+  const chosen = all.filter(h => extVisibleCols.indexOf(h) !== -1);
+  return (chosen.length ? chosen : all).map(extColDef);
+}
+
+function buildColPicker() {
+  const box = document.getElementById('colPicker');
+  if (!box) return;
+  const all = extAllHeaders();
+  if (!extVisibleCols) extVisibleCols = all.filter(h => EXT_DEFAULT_COLS.indexOf(h) !== -1);
+  let h = '<div style="font-size:9px;color:var(--t4);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">Show columns</div>';
+  all.forEach((c,i) => {
+    const on = extVisibleCols.indexOf(c) !== -1 ? ' checked' : '';
+    h += '<label style="display:flex;align-items:center;gap:8px;padding:4px 2px;font-size:11px;color:var(--t2);cursor:pointer">'
+      +  '<input type="checkbox" data-col="' + c.replace(/"/g,'&quot;') + '"' + on
+      +  ' onchange="onColToggle(this)" style="cursor:pointer">' + extColDef(c).label + '</label>';
+  });
+  h += '<div style="display:flex;gap:6px;margin-top:8px;padding-top:8px;border-top:1px solid var(--b)">'
+    +  '<button type="button" onclick="setAllCols(true)" style="flex:1;padding:5px;background:var(--n);border:1px solid var(--b);border-radius:6px;color:var(--t2);font-family:var(--font);font-size:10px;cursor:pointer">All</button>'
+    +  '<button type="button" onclick="setAllCols(false)" style="flex:1;padding:5px;background:var(--n);border:1px solid var(--b);border-radius:6px;color:var(--t2);font-family:var(--font);font-size:10px;cursor:pointer">Default</button></div>';
+  box.innerHTML = h;
+  const cnt = document.getElementById('colCount');
+  if (cnt) cnt.textContent = '(' + extVisibleCols.length + '/' + all.length + ')';
+}
+
+function onColToggle(el) {
+  const c = el.getAttribute('data-col');
+  const i = extVisibleCols.indexOf(c);
+  if (el.checked && i === -1) extVisibleCols.push(c);
+  if (!el.checked && i !== -1) extVisibleCols.splice(i,1);
+  try { localStorage.setItem('sk_ext_cols', JSON.stringify(extVisibleCols)); } catch(e) {}
+  buildColPicker(); renderClientPortal('external');
+}
+
+function setAllCols(all) {
+  extVisibleCols = all ? extAllHeaders().slice()
+                       : extAllHeaders().filter(h => EXT_DEFAULT_COLS.indexOf(h) !== -1);
+  try { localStorage.setItem('sk_ext_cols', JSON.stringify(extVisibleCols)); } catch(e) {}
+  buildColPicker(); renderClientPortal('external');
+}
+
+function toggleColPicker(ev) {
+  ev.stopPropagation();
+  const b = document.getElementById('colPicker');
+  b.style.display = b.style.display === 'none' ? 'block' : 'none';
+}
+document.addEventListener('click', function(e){
+  const b = document.getElementById('colPicker');
+  if (b && b.style.display === 'block' && !b.contains(e.target)) b.style.display = 'none';
+});
 
 // Populate client dropdown from live data
 function populateClientDropdown() {
@@ -2075,7 +2151,9 @@ async function fetchExternalPortalData() {
     const rows = parseCSV(text);
     externalPortalData = rows;
     console.log('External portal data loaded:', rows.length, 'projects');
+    try { const sv = localStorage.getItem('sk_ext_cols'); if (sv) extVisibleCols = JSON.parse(sv); } catch(e) {}
     populateExternalPortalDropdown();
+    buildColPicker();
     renderClientPortal('external');
     return true;
   } catch(e) {
