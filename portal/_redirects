@@ -1,0 +1,14 @@
+# Cloudflare Pages routing for platform.solarkal.com
+#
+# /faropoint, /plymouthreit and so on are not real files. Every path serves
+# client.html, which reads the slug from the URL and asks /api/data what the
+# signed-in person is allowed to see.
+#
+# Status 200 (rewrite), not 301/302, so the pretty URL stays in the address bar.
+#
+# The Worker route on /api/* is evaluated before Pages, so it is not caught by
+# this rule. Do not add a rule for /api here.
+#
+# This file must sit in the ROOT of the Pages deployment, next to client.html.
+
+/*    /client.html    200
