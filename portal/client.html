@@ -1453,7 +1453,8 @@ function showFreshness() {
 function init() {
   var served = !!(window.BOOTSTRAP && window.BOOTSTRAP.rows);
   var params = new URLSearchParams(window.location.search);
-  clientKey = (window.BOOTSTRAP && window.BOOTSTRAP.account) || params.get('c') || '';
+  var pathClient = (window.location.pathname || '').split('/').filter(Boolean).pop() || '';
+  clientKey = (window.BOOTSTRAP && window.BOOTSTRAP.account) || params.get('c') || pathClient;
 
   try {
     var sv = localStorage.getItem('sk_client_cols');
