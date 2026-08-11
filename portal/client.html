@@ -208,7 +208,7 @@ body{font-family:var(--font);background:var(--n5);color:var(--t);min-height:100v
 
 <script>
 /* ============ CONFIG ============ */
-var BUILD = 'c25-2026-08-10';
+var BUILD = 'c26-2026-08-11';
 
 /* The Apps Script Web App replaces the line below with an assignment to
    window.BOOTSTRAP containing this client's rows, already filtered server
@@ -1022,7 +1022,8 @@ function downloadDoc(id) {
     return;
   }
 
-  var slug = (window.location.pathname || '').split('/').filter(Boolean).pop() || '';
+  var slug = clientKey || (window.location.pathname || '').split('/').filter(Boolean).pop() || '';
+  if (slug === 'client' || slug === 'client.html') slug = '';
   fetch('/api/file?id=' + encodeURIComponent(id)
         + (slug ? '&want=' + encodeURIComponent(slug) : ''),
         { credentials: 'same-origin' })
@@ -1475,7 +1476,8 @@ function loadClientRows(cb) {
   //    you are from the Access assertion and returns only your rows.
   // The slug is a hint, never an instruction. The server honours it only for
   // SolarKal staff; a client gets their own account regardless.
-  var slug = (window.location.pathname || '').split('/').filter(Boolean).pop() || '';
+  var slug = clientKey || (window.location.pathname || '').split('/').filter(Boolean).pop() || '';
+  if (slug === 'client' || slug === 'client.html') slug = '';
   var q = slug ? '?want=' + encodeURIComponent(slug) : '';
 
   fetch('/api/data' + q, { credentials: 'same-origin' })
@@ -1554,7 +1556,9 @@ function showFreshness() {
 function init() {
   var served = !!(window.BOOTSTRAP && window.BOOTSTRAP.rows);
   var params = new URLSearchParams(window.location.search);
-  clientKey = (window.BOOTSTRAP && window.BOOTSTRAP.account) || params.get('c') || '';
+  var pathClient = (window.location.pathname || '').split('/').filter(Boolean).pop() || '';
+  if (pathClient === 'client' || pathClient === 'client.html') pathClient = '';
+  clientKey = (window.BOOTSTRAP && window.BOOTSTRAP.account) || params.get('c') || pathClient || '';
 
   try {
     var sv = localStorage.getItem('sk_client_cols');
