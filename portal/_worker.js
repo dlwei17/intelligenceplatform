@@ -6,7 +6,13 @@
  * other requests are served from this Pages project's static assets.
  */
 
-const API_PATHS = new Set(["/api/data", "/api/file"]);
+const API_PATHS = new Set([
+  "/api/data",
+  "/api/docs",
+  "/api/file",
+  "/api/zip",
+  "/api/note",
+]);
 
 export default {
   async fetch(request, env) {
