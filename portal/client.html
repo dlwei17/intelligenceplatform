@@ -1697,13 +1697,16 @@ function detailHtml(r) {
 /* ============ notes for client ============
  *
  * The only writable thing in the portal, and the only place a person can put
- * words in front of a client. Staff see an editor; clients see the text.
- *
+ * words in front of a client. Staff and clients can start or reply to a
+ * thread; only staff can resolve it.
  * A note is REQUIRED before a project can be flagged. A bare marker tells a
  * client something is wrong and nothing about what, which is worse than
  * silence. Resolved notes stay visible with a green tick, because "we flagged
  * it, here is what happened, it is done" is the whole point.
  * ========================================================================= */
+
+/** Set false if clients should be respondents only. */
+var CLIENT_CAN_START = true;
 
 function noteBlock(r) {
   var nt  = r.__note;
@@ -1719,7 +1722,7 @@ function noteBlock(r) {
         + 'the report, so comments cannot be attached to it.</div></div>'
       : '';
   }
-  if (!msgs.length && !isStaff) return '';
+  if (!msgs.length && !isStaff && !CLIENT_CAN_START) return '';
 
   var id = 'note-' + pid.replace(/[^A-Za-z0-9]/g, '');
   var accent = done ? 'var(--g)' : (live ? 'var(--y)' : '#5d7c8f');
@@ -1767,12 +1770,6 @@ function noteBlock(r) {
     +   '</div>'
     + '</div></div>';
 }
-
-/**
- * Clients may start a thread as well as reply. Set false to make them
- * respondents only.
- */
-var CLIENT_CAN_START = true;
 
 /**
  * Highlights any roster name written as "@First Last". Escaping happens
@@ -1922,7 +1919,7 @@ function postNote(pid, action) {
     credentials: 'same-origin',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ projectId: pid, projectName: name,
-                           action: action || 'post', note: text })
+                           state: action || 'post', note: text })
   }).then(function (r) {
       /**
        * A 404 or an HTML body here means the Worker has no /api/note route,
