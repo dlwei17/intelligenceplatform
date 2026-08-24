@@ -402,7 +402,7 @@ body{font-family:var(--font);background:var(--n5);color:var(--t);min-height:100v
 
 <script>
 /* ============ CONFIG ============ */
-var BUILD = 'c63-2026-08-21';
+var BUILD = 'c65-2026-08-24';
 
 /* The Apps Script Web App replaces the line below with an assignment to
    window.BOOTSTRAP containing this client's rows, already filtered server
@@ -535,6 +535,17 @@ function reportButtonHtml(context) {
     + 'text-decoration:none">Portal down? Click here to report</a></div>';
 }
 
+function portalSlug(clientName) {
+  var normalized = String(clientName || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+  var aliases = {
+    oliverstreetcapital: 'oliverstreet',
+    plymouthreit: 'plymouth',
+    turnbridgeequities: 'turnbridge',
+    highstreetlogisticsproperties: 'highstreet'
+  };
+  return aliases[normalized] || normalized;
+}
+
 function renderStaffPicker(clients) {
   var h = '<div style="padding:50px 20px;max-width:640px;margin:0 auto">'
     + '<h2 style="font-size:17px;color:var(--t);margin-bottom:6px">SolarKal team view</h2>'
@@ -547,7 +558,7 @@ function renderStaffPicker(clients) {
       })()
     + '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:8px">';
   clients.forEach(function (c) {
-    h += '<a href="/' + encodeURIComponent(c.toLowerCase().replace(/[^a-z0-9]/g, ''))
+    h += '<a href="/' + encodeURIComponent(portalSlug(c))
       +  '" style="display:block;padding:12px 14px;background:var(--n);border:1px solid var(--b);'
       +  'border-radius:8px;color:var(--t);font-size:12px;font-weight:600;text-decoration:none">'
       +  esc(c) + '</a>';
@@ -2501,7 +2512,7 @@ function noteBlock(r) {
         + 'the report, so comments cannot be attached to it.</div></div>'
       : '';
   }
-  if (!msgs.length && !isStaff) return '';
+  if (!msgs.length && !isStaff && !CLIENT_CAN_START) return '';
 
   var id = 'note-' + pid.replace(/[^A-Za-z0-9]/g, '');
   var accent = done ? 'var(--g)' : (live ? 'var(--y)' : '#5d7c8f');
