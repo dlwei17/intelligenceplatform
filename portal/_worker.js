@@ -11,6 +11,9 @@ const API_PATHS = new Set([
   "/api/docs",
   "/api/file",
   "/api/zip",
+  "/api/snapdates",
+  "/api/diff",
+  "/api/asof",
   "/api/note",
 ]);
 
